@@ -22,37 +22,3 @@ def send_message(
     )
     assert r.status_code == 200
     return r
-
-
-if __name__ == "__main__":
-    # TODO: Replace this with the actual meals of the day and their descriptions
-    # and images
-    meals_of_the_day = [
-        "Spaghetti Bolognese (Pork/Beef) with Gouda shavings",
-        "Vegan Peanut Vegetable Curry with Coconut Milk and Basmati Rice",
-    ]
-    descriptions = [
-        "This spaghetti bolognese is made with pork and beef and is served with gouda shavings. The first bite will make you feel like you're in Italy!",
-        "This vegan peanut vegetable curry is made with coconut milk and basmati rice. The wide range of vegetables will make you feel like you're in a tropical paradise!",
-    ]
-    images = [
-        IMAGE_URL,
-        IMAGE_URL,
-    ]
-
-    prefix = f"For today, we have the following meals ({ALSTERFOOD_WEBSITE_URL}):"
-
-    # Generate markdown table
-    table = "| Preview | Meal | Description | \n| --- | --- | --- |\n"
-    for meal, desc, img_url in zip(meals_of_the_day, descriptions, images):
-        table += f"| ![preview]({img_url}) | **{meal}**  | {desc}| \n"
-
-    message = prefix + "\n\n" + table
-
-    print(message)
-
-    send_message(
-        url=MATTERMOST_WEBHOOK_URL,
-        message=message,
-        username="Lunchbot (always hungry)",
-    )

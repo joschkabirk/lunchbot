@@ -50,12 +50,3 @@ def fetch_lunch_menu(url):
         list_of_prices = [price.text for price in prices if price.text != ""]
 
     return list_of_meals, list_of_prices
-
-
-if __name__ == "__main__":
-    url = ALSTERFOOD_WEBSITE_URL
-    print(url)
-    # Fetch the entire HTML source after rendering
-    list_of_meals, list_of_prices = fetch_lunch_menu(url)
-    print(list_of_meals)
-    print(list_of_prices)
