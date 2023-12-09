@@ -1,0 +1,12 @@
+debug_list_of_meals:
+  - "Spaghetti Bolognese (Pork/Beef) with Gouda shavings"
+  - "Vegan Peanut Vegetable Curry with Coconut Milk and Basmati Rice"
+debug_list_of_prices:
+  - "€ 4.50"
+  - "€ 4.20"
+debug_list_of_descriptions:
+  - "Savor the rich and robust flavors of tender ground pork or beef simmered in a hearty tomato sauce, generously served over al dente spaghetti noodles. Tantalize your taste buds with the nutty essence of Gouda cheese, thinly shaved to perfection, adding a delightful twist to this classic Italian dish."
+  - "Experience a tantalizing blend of flavors and textures in this vibrant vegan curry, where the creaminess of coconut milk harmonizes with the nuttiness of peanut and the tenderness of perfectly cooked vegetables, all served delightfully atop a fluffy bed of aromatic basmati rice. A symphony of colors and tastes that showcases the beauty of plant-based cuisine while delivering a rich and satisfying culinary journey."
+debug_list_of_images:
+  - "https://oaidalleapiprodscus.blob.core.windows.net/private/org-Q9Rj5vhxAlToLRKA1ArxsFPb/user-3wIkLqTRO6pY44iwB89vGS34/img-wEyVXCz1cdPfUjWI3T3he2Ek.png?st=2023-12-09T17%3A10%3A35Z&se=2023-12-09T19%3A10%3A35Z&sp=r&sv=2021-08-06&sr=b&rscd=inline&rsct=image/png&skoid=6aaadede-4fb3-4698-a8f6-684d7786b067&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2023-12-08T23%3A13%3A43Z&ske=2023-12-09T23%3A13%3A43Z&sks=b&skv=2021-08-06&sig=7md/joH9I1tPhWzZ6f4YqmzXoY1FJHexuCIDUf0Z5d4%3D"
+  - "https://oaidalleapiprodscus.blob.core.windows.net/private/org-Q9Rj5vhxAlToLRKA1ArxsFPb/user-3wIkLqTRO6pY44iwB89vGS34/img-5Iz1SIavniWBEeGIDXGf9Wxu.png?st=2023-12-09T17%3A10%3A42Z&se=2023-12-09T19%3A10%3A42Z&sp=r&sv=2021-08-06&sr=b&rscd=inline&rsct=image/png&skoid=6aaadede-4fb3-4698-a8f6-684d7786b067&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2023-12-08T23%3A12%3A49Z&ske=2023-12-09T23%3A12%3A49Z&sks=b&skv=2021-08-06&sig=BRIxAYciSC3TlzmgXfhMJ32XWV9Y1KjqoX2swR7gfwM%3D"
