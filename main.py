@@ -1,13 +1,15 @@
 import os
+from subprocess import run  # nosec
+from urllib import request  # nosec
 
 import yaml
 
 from src.alsterfood_scraping import fetch_lunch_menu
 from src.description_generation import get_food_description
-from src.image_generation import generate_image
+from src.image_generation import generate_hash, generate_image
 from src.mattermost_posting import send_message
 
-DEBUG = False
+DEBUG = True
 ALSTERFOOD_WEBSITE_URL = os.getenv("ALSTERFOOD_WEBSITE_URL")
 MATTERMOST_WEBHOOK_URL = os.getenv("MATTERMOST_WEBHOOK_URL")
 IMAGE_CLOUD_UPLOAD_URL = os.getenv("IMAGE_CLOUD_UPLOAD_URL")
@@ -43,6 +45,30 @@ def lunchbot():
                 # Print the URL of the generated image
                 print(f"Generated Image URL: {generated_image_url}")
 
+        images_cloud_urls = []
+
+        for image_url in images:
+            # generate a unique hash for the image
+            image_hash = generate_hash(image_url)
+            # download the image url and save in images/image_hash.png
+            # command = f"curl --output images/asdf{i}.png {image_url}"
+            request.urlretrieve(image_url, f"images/{image_hash}.png")  # nosec
+            # upload the image to the cloud
+            upload_command = [
+                "curl",
+                "-u",
+                f"'{IMAGE_CLOUD_UPLOAD_TOKEN}'",
+                "-T",
+                f"images/{image_hash}.png",
+                f"{IMAGE_CLOUD_UPLOAD_URL}{image_hash}.png",
+            ]
+            upload_command = " ".join(upload_command)
+            run(upload_command, shell=True)  # nosec
+            # Print the URL of the generated image and its hash
+            print(f"Generated Image URL: {image_url}, Hash: {image_hash}")
+
+            images_cloud_urls.append(f"{IMAGE_CLOUD_DOWNLOAD_URL}{image_hash}.png")
+
         # -------------------------------------------------------------------------
         # Generate the description for each meal
         # ---
@@ -61,7 +87,7 @@ def lunchbot():
 
         # Generate markdown table
         table = "| Preview | Meal | Description | \n| --- | --- | --- |\n"
-        for meal, desc, img_url in zip(list_of_meals, descriptions, images):
+        for meal, desc, img_url in zip(list_of_meals, descriptions, images_cloud_urls):
             table += f"| ![preview]({img_url}) | **{meal}**  | {desc}| \n"
 
         message = prefix + "\n\n" + table
