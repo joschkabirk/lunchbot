@@ -50,10 +50,13 @@ def lunchbot():
         for image_url in images:
             # generate a unique hash for the image
             image_hash = generate_hash(image_url)
-            # download the image url and save in images/image_hash.png
+            # download the image from the openAI url and save in images/image_hash.png
+            # (openAI urls are only valid for one hour)
             # command = f"curl --output images/asdf{i}.png {image_url}"
             request.urlretrieve(image_url, f"images/{image_hash}.png")  # nosec
-            # upload the image to the cloud
+            # upload the image to the cloud (where it will be available for unlimited
+            # time / until we delete it, but we don't have to worry about the
+            # image expiring after a short time)
             upload_command = [
                 "curl",
                 "-u",
