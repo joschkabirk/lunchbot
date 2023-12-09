@@ -14,7 +14,7 @@ debug_list_of_meals = [
 ]
 debug_list_of_prices = [
     "€ 4.50",
-    "€ 4.50",
+    "€ 4.20",
 ]
 debug_list_of_descriptions = [
     "This spaghetti bolognese is made with pork and beef and is served with gouda shavings. The first bite will make you feel like you're in Italy!",
@@ -27,17 +27,19 @@ debug_list_of_images = [
 
 
 if __name__ == "__main__":
-    url = ALSTERFOOD_WEBSITE_URL
-    print(url)
-
-    # Fetch the entire HTML source after rendering
+    # -------------------------------------------------------------------------
+    # Get the list of meals and prices
+    # ---
     if DEBUG:
         list_of_meals = debug_list_of_meals
     else:
-        list_of_meals, list_of_prices = fetch_lunch_menu(url)
+        list_of_meals, list_of_prices = fetch_lunch_menu(ALSTERFOOD_WEBSITE_URL)
 
     print(list_of_meals)
 
+    # -------------------------------------------------------------------------
+    # Generate images for the meals
+    # ---
     if DEBUG:
         images = debug_list_of_images
     else:
@@ -49,9 +51,19 @@ if __name__ == "__main__":
             # Print the URL of the generated image
             print(f"Generated Image URL: {generated_image_url}")
 
+    # -------------------------------------------------------------------------
+    # Generate the description for each meal
+    # ---
     # TODO: Replace this with the actual meals of the day and their descriptions
     # and images
-    descriptions = debug_list_of_descriptions
+    if DEBUG:
+        descriptions = debug_list_of_descriptions
+    else:
+        descriptions = debug_list_of_descriptions
+
+    # -------------------------------------------------------------------------
+    # Put the message together and send to Mattermost
+    # ---
 
     prefix = f"For today, we have the following meals ({ALSTERFOOD_WEBSITE_URL}):"
 
@@ -62,6 +74,7 @@ if __name__ == "__main__":
 
     message = prefix + "\n\n" + table
 
+    print("The following message will be posted on Mattermost:")
     print(message)
 
     send_message(
