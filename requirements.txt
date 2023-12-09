@@ -4,3 +4,5 @@ datetime
 selenium
 pre-commit
 openai
+black
+ruff

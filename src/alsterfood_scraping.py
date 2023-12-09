@@ -40,15 +40,22 @@ def fetch_lunch_menu(url):
         menu_entries_div_class_name = "min-height-rem2-5"
         menu_entries = driver.find_elements(By.CLASS_NAME, menu_entries_div_class_name)
 
+        # TODO: this currently extracts more prices than there are meals...
+        # --> need to find a way to extract only the prices for the meals
+        prices_div_class_name = "price-text"
+        prices = driver.find_elements(By.CLASS_NAME, prices_div_class_name)
+
         # Get the text content of each entry
         list_of_meals = [entry.text for entry in menu_entries if entry.text != ""]
+        list_of_prices = [price.text for price in prices if price.text != ""]
 
-    return list_of_meals
+    return list_of_meals, list_of_prices
 
 
 if __name__ == "__main__":
     url = ALSTERFOOD_WEBSITE_URL
     print(url)
     # Fetch the entire HTML source after rendering
-    list_of_meals = fetch_lunch_menu(url)
+    list_of_meals, list_of_prices = fetch_lunch_menu(url)
     print(list_of_meals)
+    print(list_of_prices)

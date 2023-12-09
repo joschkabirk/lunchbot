@@ -10,15 +10,14 @@ IMAGE_URL = "https://oaidalleapiprodscus.blob.core.windows.net/private/org-Q9Rj5
 def send_message(
     url: str,
     message: str,
-    props: dict = None,
     username: str = "Lunchbot (always hungry)",
 ):
+    """Send a message to a Mattermost channel via a webhook."""
     r = requests.post(
         url,
         json={
             "username": username,
             "text": message,
-            "props": props,
         },
     )
     assert r.status_code == 200
@@ -55,6 +54,5 @@ if __name__ == "__main__":
     send_message(
         url=MATTERMOST_WEBHOOK_URL,
         message=message,
-        props=None,
         username="Lunchbot (always hungry)",
     )
