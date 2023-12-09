@@ -3,3 +3,4 @@ bs4
 datetime
 selenium
 pre-commit
+openai
