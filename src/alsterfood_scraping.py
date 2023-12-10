@@ -9,16 +9,22 @@ from selenium.webdriver.support.ui import WebDriverWait
 def fetch_lunch_menu(url):
     # Set up Chrome options (adjust as needed)
     chrome_options = webdriver.ChromeOptions()
-    chrome_options.headless = True  # Run Chrome in headless mode (without GUI)
+    # chrome_options.headless = True  # Run Chrome in headless mode (without GUI)
+    chrome_options.add_argument('--headless=new')
+    chrome_options.add_argument('--no-sandbox')
+    chrome_options.add_argument('--disable-gpu')
+    chrome_options.add_argument('--disable-features=dbus')
 
     # Specify the path to your ChromeDriver executable
     chrome_path = "/opt/homebrew/Caskroom/chromedriver/120.0.6099.71/chromedriver-mac-arm64/chromedriver"
+    chrome_path = "/usr/bin/chromedriver"
 
     # Initialize the Chrome driver
     with webdriver.Chrome(
         service=ChromeService(executable_path=chrome_path), options=chrome_options
     ) as driver:
         # Navigate to the URL
+        print(f"Connecting to url {url}")
         driver.get(url)
 
         # Wait for up to 10 seconds for an element with ID 'target_element_id' to be present
