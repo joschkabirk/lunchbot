@@ -10,13 +10,13 @@ def fetch_lunch_menu(url):
     # Set up Chrome options (adjust as needed)
     chrome_options = webdriver.ChromeOptions()
     # chrome_options.headless = True  # Run Chrome in headless mode (without GUI)
-    chrome_options.add_argument('--headless=new')
-    chrome_options.add_argument('--no-sandbox')
-    chrome_options.add_argument('--disable-gpu')
-    chrome_options.add_argument('--disable-features=dbus')
+    chrome_options.add_argument("--headless=new")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--disable-features=dbus")
 
     # Specify the path to your ChromeDriver executable
-    chrome_path = "/opt/homebrew/Caskroom/chromedriver/120.0.6099.71/chromedriver-mac-arm64/chromedriver"
+    # chrome_path = "/opt/homebrew/Caskroom/chromedriver/120.0.6099.71/chromedriver-mac-arm64/chromedriver"  # mac
     chrome_path = "/usr/bin/chromedriver"
 
     # Initialize the Chrome driver
@@ -28,7 +28,7 @@ def fetch_lunch_menu(url):
         driver.get(url)
 
         # Wait for up to 10 seconds for an element with ID 'target_element_id' to be present
-        wait = WebDriverWait(driver, 3)
+        wait = WebDriverWait(driver, 5)
         wait.until(EC.presence_of_element_located((By.ID, "group2-select-options-51")))
 
         # Get the page source after JavaScript execution
