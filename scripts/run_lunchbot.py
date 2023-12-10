@@ -40,9 +40,18 @@ logger.setLevel(logging.DEBUG)
 
 
 def main():
+    # some initial logging
+    logger.info(50 * "-")
+    logger.info("LUNCHBOT hungry!")
+    logger.info("LUNCHBOT will be looking for food now...")
+    logger.info(50 * "-")
+
     # -------------------------------------------------------------------------
     # Get the list of meals and prices
     # ---
+    logger.info(
+        f"Fetching the lunch menu from Alsterfood... ({ALSTERFOOD_WEBSITE_URL})"
+    )
     if DEBUG:
         list_of_meals = debug_variables["debug_list_of_meals"]
     else:
@@ -55,6 +64,9 @@ def main():
     # -------------------------------------------------------------------------
     # Generate images for the meals
     # ---
+    logger.info(50 * "-")
+    logger.info("Generating images for the meals...")
+
     if DEBUG:
         images = debug_variables["debug_list_of_images"]
     else:
@@ -89,13 +101,16 @@ def main():
         upload_command = " ".join(upload_command)
         run(upload_command, shell=True)  # nosec
         # log the URL of the generated image and its hash
-        logger.debug(f"Generated Image URL: {image_url}, Hash: {image_hash}")
+        logger.debug(f"Generated Image URL: {image_url}")
+        logger.debug(f"Hash: {image_hash}")
 
         images_cloud_urls.append(f"{IMAGE_CLOUD_DOWNLOAD_URL}{image_hash}.png")
 
     # -------------------------------------------------------------------------
     # Generate the description for each meal
     # ---
+    logger.info(50 * "-")
+    logger.info("Generating descriptions for the meals...")
     if DEBUG:
         descriptions = debug_variables["debug_list_of_descriptions"]
     else:
