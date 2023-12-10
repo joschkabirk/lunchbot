@@ -3,6 +3,8 @@
 Bot that extracts the lunch menu from the DESY canteen website and posts a message in
 a dedicated Mattermost channel.
 
+<img src=assets/lunchbot.svg width=600px style="border-radius:10px">
+
 ## Usage
 
 ### Requirements
