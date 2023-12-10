@@ -5,10 +5,10 @@ from urllib import request  # nosec
 
 import yaml
 
-from src.alsterfood_scraping import fetch_lunch_menu
-from src.description_generation import get_food_description
-from src.image_generation import generate_hash, generate_image
-from src.mattermost_posting import send_message
+from lunchbot.alsterfood_scraping import fetch_lunch_menu
+from lunchbot.description_generation import get_food_description
+from lunchbot.image_generation import generate_hash, generate_image
+from lunchbot.mattermost_posting import send_message
 
 DEBUG = True
 ALSTERFOOD_WEBSITE_URL = os.getenv("ALSTERFOOD_WEBSITE_URL")
