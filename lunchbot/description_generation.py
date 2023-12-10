@@ -1,7 +1,7 @@
 from openai import OpenAI
 
 
-def get_food_description(meal_name, return_prompt_answer=False):
+def get_food_description(meal_name, return_prompt_answer=False, system_content=None):
     """Generate a description for a meal based on a prompt.
 
     Parameters
@@ -19,15 +19,18 @@ def get_food_description(meal_name, return_prompt_answer=False):
 
     client = OpenAI()
 
+    if system_content is None:
+        system_content = (
+            "You are a five star chef. You know how to describe food. "
+            "But don't start always with 'Indulge in ...'"
+        )
+
     prompt = meal_name + " - please describe this meal in two sentences."
 
     completion = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[
-            {
-                "role": "system",
-                "content": "You are a five star chef. You know how to describe food. But don't start always with 'Indulge in ...'",
-            },
+            {"role": "system", "content": system_content},
             {"role": "user", "content": prompt},
         ],
     )

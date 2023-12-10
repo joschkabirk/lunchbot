@@ -16,9 +16,12 @@ IMAGE_CLOUD_DOWNLOAD_URL = os.getenv("IMAGE_CLOUD_DOWNLOAD_URL")
 MESSAGE_PREFIX = os.getenv("MESSAGE_PREFIX")
 MESSAGE_SUFFIX = os.getenv("MESSAGE_SUFFIX")
 MATTERMOST_USERNAME = os.getenv("MATTERMOST_USERNAME")
+SYSTEM_CONTENT = os.getenv("SYSTEM_CONTENT")
+DESCRIPTION_SUFFIX = os.getenv("DESCRIPTION_SUFFIX")
 
+if DESCRIPTION_SUFFIX is None:
+    DESCRIPTION_SUFFIX = ""
 
-# TODO: add the context / bot definition to the .env file
 
 logger = logging.getLogger("lunchbot")
 
@@ -119,7 +122,10 @@ def main():
                 descriptions.append(f.read())
         else:
             logger.info(f"Generating description for meal {meal}")
-            description = get_food_description(meal)
+            description = get_food_description(
+                meal_name=meal,
+                system_content=SYSTEM_CONTENT,
+            )
             with open(f"images/{meal_hash}.txt", "w") as f:
                 f.write(description)
             descriptions.append(description)
@@ -129,7 +135,10 @@ def main():
     # ---
 
     # Generate markdown table
-    table = "| Preview | Meal | Description | \n| --- | --- | --- |\n"
+    table = (
+        f"| Preview | Meal | Description {DESCRIPTION_SUFFIX}| "
+        "\n| --- | --- | --- |\n"
+    )
     for meal, desc, img_url in zip(list_of_meals, descriptions, images_cloud_urls):
         table += f"| ![preview]({img_url}) | **{meal}**  | {desc}| \n"
 

@@ -24,6 +24,8 @@ IMAGE_CLOUD_DOWNLOAD_URL="<your image cloud download URL>"
 MESSAGE_PREFIX="<your message prefix>"
 MESSAGE_SUFFIX="<your message suffix>"
 MATTERMOST_USERNAME="<username displayed for the bot>"
+SYSTEM_CONTENT="<description of the system that describes the food>"
+DESCRIPTION_SUFFIX="<suffix to put after "Description" in the table header>"
 ```
 
 ### Run the bot
