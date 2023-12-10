@@ -75,7 +75,7 @@ def main():
 
         if os.path.isfile(f"images/{meal_hash}.png"):
             # if the image already exists in images/, skip the download
-            logger.info(f"Image already exists for meal {meal}")
+            logger.info(f"Image already exists for meal '{meal}'")
         else:
             # Generate an image with DALL-E based on the menu entries
             generated_image_url = generate_image(prompt=meal)
@@ -110,7 +110,7 @@ def main():
         # check if images/<hash>.txt exists, if yes, skip the description generation
         # and just read the description from the file
         if os.path.isfile(f"images/{meal_hash}.txt"):
-            logger.info(f"Description already exists for meal {meal}")
+            logger.info(f"Description already exists for meal '{meal}'")
             with open(f"images/{meal_hash}.txt") as f:
                 descriptions.append(f.read())
         else:
