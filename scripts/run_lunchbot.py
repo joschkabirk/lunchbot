@@ -144,6 +144,7 @@ def main():
         message=message,
         username="Lunchbot (always hungry)",
     )
+    logger.info("Message posted successfully!")
 
 
 if __name__ == "__main__":

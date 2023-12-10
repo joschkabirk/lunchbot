@@ -24,7 +24,6 @@ def fetch_lunch_menu(url):
         service=ChromeService(executable_path=chrome_path), options=chrome_options
     ) as driver:
         # Navigate to the URL
-        print(f"Connecting to url {url}")
         driver.get(url)
 
         # Wait for up to 10 seconds for an element with ID 'target_element_id' to be present
