@@ -42,6 +42,9 @@ def main():
     logger.info("LUNCHBOT will be looking for food now...")
     logger.info(50 * "-")
 
+    # create the images/ directory if it doesn't exist
+    os.makedirs("images", exist_ok=True)
+
     # -------------------------------------------------------------------------
     # Get the list of meals and prices
     # ---
