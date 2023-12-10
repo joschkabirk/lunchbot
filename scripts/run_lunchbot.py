@@ -55,21 +55,25 @@ def main():
         logger.info(f"  {i+1})  {meal}")
 
     # -------------------------------------------------------------------------
-    # Generate images for the meals
+    # Generate images and descriptions for the meals
     # ---
     logger.info(50 * "-")
     logger.info("Generating images for the meals...")
 
     images = []
+    descriptions = []
     images_cloud_urls = []
     for meal in list_of_meals:
         # generate a unique hash for the image
-        image_hash = generate_hash(meal)
+        meal_hash = generate_hash(meal)
 
         logger.debug(f"Meal: {meal}")
-        logger.debug(f"Hash: {image_hash}")
+        logger.debug(f"Hash: {meal_hash}")
 
-        if os.path.isfile(f"images/{image_hash}.png"):
+        # --------------------------------------------------------------------
+        # Generate the image for the meal
+
+        if os.path.isfile(f"images/{meal_hash}.png"):
             # if the image already exists in images/, skip the download
             logger.info(f"Image already exists for meal {meal}")
         else:
@@ -82,9 +86,7 @@ def main():
             # download the image from the openAI url and save in images/image_hash.png
             # (openAI urls are only valid for one hour)
             # command = f"curl --output images/asdf{i}.png {image_url}"
-            request.urlretrieve(
-                generated_image_url, f"images/{image_hash}.png"
-            )  # nosec
+            request.urlretrieve(generated_image_url, f"images/{meal_hash}.png")  # nosec
 
         # upload the image to the cloud (where it will be available for unlimited
         # time / until we delete it, but we don't have to worry about the
@@ -94,23 +96,29 @@ def main():
             "-u",
             f"'{IMAGE_CLOUD_UPLOAD_TOKEN}'",
             "-T",
-            f"images/{image_hash}.png",
-            f"{IMAGE_CLOUD_UPLOAD_URL}{image_hash}.png",
+            f"images/{meal_hash}.png",
+            f"{IMAGE_CLOUD_UPLOAD_URL}{meal_hash}.png",
         ]
         upload_command = " ".join(upload_command)
         run(upload_command, shell=True)  # nosec
 
-        images_cloud_urls.append(f"{IMAGE_CLOUD_DOWNLOAD_URL}{image_hash}.png")
+        images_cloud_urls.append(f"{IMAGE_CLOUD_DOWNLOAD_URL}{meal_hash}.png")
 
-    # -------------------------------------------------------------------------
-    # Generate the description for each meal
-    # ---
-    logger.info(50 * "-")
-    logger.info("Generating descriptions for the meals...")
-
-    descriptions = []
-    for menu_entry in list_of_meals:
-        descriptions.append(get_food_description(menu_entry, verbose=True))
+        # -------------------------------------------------------------------------
+        # Generate the description
+        # ---
+        # check if images/<hash>.txt exists, if yes, skip the description generation
+        # and just read the description from the file
+        if os.path.isfile(f"images/{meal_hash}.txt"):
+            logger.info(f"Description already exists for meal {meal}")
+            with open(f"images/{meal_hash}.txt") as f:
+                descriptions.append(f.read())
+        else:
+            logger.info(f"Generating description for meal {meal}")
+            description = get_food_description(meal)
+            with open(f"images/{meal_hash}.txt", "w") as f:
+                f.write(description)
+            descriptions.append(get_food_description(meal, verbose=True))
 
     # -------------------------------------------------------------------------
     # Put the message together and send to Mattermost
