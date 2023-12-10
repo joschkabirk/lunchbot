@@ -6,7 +6,7 @@ def send_message(
     message: str,
     username: str = "Lunchbot (always hungry)",
 ):
-    """Send a message to a Mattermost channel via a webhook."""
+    """Send a message via a webhook."""
     r = requests.post(
         url,
         json={

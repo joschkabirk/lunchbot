@@ -15,10 +15,9 @@ IMAGE_CLOUD_UPLOAD_TOKEN = os.getenv("IMAGE_CLOUD_UPLOAD_TOKEN")
 IMAGE_CLOUD_DOWNLOAD_URL = os.getenv("IMAGE_CLOUD_DOWNLOAD_URL")
 MESSAGE_PREFIX = os.getenv("MESSAGE_PREFIX")
 MESSAGE_SUFFIX = os.getenv("MESSAGE_SUFFIX")
+MATTERMOST_USERNAME = os.getenv("MATTERMOST_USERNAME")
 
 
-# TODO: add username as .env variable
-# TODO: make logging colored?
 # TODO: add the context / bot definition to the .env file
 
 logger = logging.getLogger("lunchbot")
@@ -142,7 +141,7 @@ def main():
     send_message(
         url=MATTERMOST_WEBHOOK_URL,
         message=message,
-        username="Lunchbot (always hungry)",
+        username=MATTERMOST_USERNAME,
     )
     logger.info("Message posted successfully!")
 
