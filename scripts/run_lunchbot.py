@@ -121,7 +121,7 @@ def main():
             description = get_food_description(meal)
             with open(f"images/{meal_hash}.txt", "w") as f:
                 f.write(description)
-            descriptions.append(get_food_description(meal, verbose=True))
+            descriptions.append(get_food_description(meal))
 
     # -------------------------------------------------------------------------
     # Put the message together and send to Mattermost

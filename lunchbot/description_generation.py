@@ -1,13 +1,20 @@
 from openai import OpenAI
 
 
-def get_food_description(meal_name, verbose=False):
+def get_food_description(meal_name, return_prompt_answer=False):
     """Generate a description for a meal based on a prompt.
 
     Parameters
     ----------
     meal_name : str
         The name of the meal to generate a description for.
+    return_prompt_answer : bool, optional
+        Whether to return the prompt and the answer, by default False
+
+    Returns
+    -------
+    str or tuple
+        The answer or a tuple of the prompt and the answer (if return_prompt_answer=True).
     """
 
     client = OpenAI()
@@ -27,8 +34,7 @@ def get_food_description(meal_name, verbose=False):
 
     response = completion.choices[0].message.content
 
-    if verbose:
-        print("Prompt:", prompt)
-        print("Response:", response)
+    if return_prompt_answer:
+        return prompt, response
 
     return response
