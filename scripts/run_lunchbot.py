@@ -3,14 +3,11 @@ import os
 from subprocess import run  # nosec
 from urllib import request  # nosec
 
-import yaml
-
 from lunchbot.alsterfood_scraping import fetch_lunch_menu
 from lunchbot.description_generation import get_food_description
 from lunchbot.image_generation import generate_hash, generate_image
 from lunchbot.mattermost_posting import send_message
 
-DEBUG = True
 ALSTERFOOD_WEBSITE_URL = os.getenv("ALSTERFOOD_WEBSITE_URL")
 MATTERMOST_WEBHOOK_URL = os.getenv("MATTERMOST_WEBHOOK_URL")
 IMAGE_CLOUD_UPLOAD_URL = os.getenv("IMAGE_CLOUD_UPLOAD_URL")
@@ -20,8 +17,7 @@ IMAGE_CLOUD_DOWNLOAD_URL = os.getenv("IMAGE_CLOUD_DOWNLOAD_URL")
 
 # TODO: add username as .env variable
 # TODO: make logging colored?
-
-debug_variables = yaml.safe_load(open("debug_variables.yml"))
+# TODO: add the context / bot definition to the .env file
 
 logger = logging.getLogger("lunchbot")
 
@@ -52,10 +48,7 @@ def main():
     logger.info(
         f"Fetching the lunch menu from Alsterfood... ({ALSTERFOOD_WEBSITE_URL})"
     )
-    if DEBUG:
-        list_of_meals = debug_variables["debug_list_of_meals"]
-    else:
-        list_of_meals, list_of_prices = fetch_lunch_menu(ALSTERFOOD_WEBSITE_URL)
+    list_of_meals, list_of_prices = fetch_lunch_menu(ALSTERFOOD_WEBSITE_URL)
 
     logger.info("The following meals were found:")
     for i, meal in enumerate(list_of_meals):
@@ -67,26 +60,32 @@ def main():
     logger.info(50 * "-")
     logger.info("Generating images for the meals...")
 
-    if DEBUG:
-        images = debug_variables["debug_list_of_images"]
-    else:
-        images = []
-        # Generate an image with DALL-E based on the menu entries
-        for menu_entry in list_of_meals:
-            generated_image_url = generate_image(prompt=menu_entry)
+    images = []
+    images_cloud_urls = []
+    for meal in list_of_meals:
+        # generate a unique hash for the image
+        image_hash = generate_hash(meal)
+
+        logger.debug(f"Meal: {meal}")
+        logger.debug(f"Hash: {image_hash}")
+
+        if os.path.isfile(f"images/{image_hash}.png"):
+            # if the image already exists in images/, skip the download
+            logger.info(f"Image already exists for meal {meal}")
+        else:
+            # Generate an image with DALL-E based on the menu entries
+            generated_image_url = generate_image(prompt=meal)
             images.append(generated_image_url)
             # log the URL of the generated image
-            logger.debug(f"Generated Image URL: {generated_image_url}")
+            logger.info(f"Generated Image URL: {generated_image_url}")
 
-    images_cloud_urls = []
+            # download the image from the openAI url and save in images/image_hash.png
+            # (openAI urls are only valid for one hour)
+            # command = f"curl --output images/asdf{i}.png {image_url}"
+            request.urlretrieve(
+                generated_image_url, f"images/{image_hash}.png"
+            )  # nosec
 
-    for image_url in images:
-        # generate a unique hash for the image
-        image_hash = generate_hash(image_url)
-        # download the image from the openAI url and save in images/image_hash.png
-        # (openAI urls are only valid for one hour)
-        # command = f"curl --output images/asdf{i}.png {image_url}"
-        request.urlretrieve(image_url, f"images/{image_hash}.png")  # nosec
         # upload the image to the cloud (where it will be available for unlimited
         # time / until we delete it, but we don't have to worry about the
         # image expiring after a short time)
@@ -100,9 +99,6 @@ def main():
         ]
         upload_command = " ".join(upload_command)
         run(upload_command, shell=True)  # nosec
-        # log the URL of the generated image and its hash
-        logger.debug(f"Generated Image URL: {image_url}")
-        logger.debug(f"Hash: {image_hash}")
 
         images_cloud_urls.append(f"{IMAGE_CLOUD_DOWNLOAD_URL}{image_hash}.png")
 
@@ -111,12 +107,10 @@ def main():
     # ---
     logger.info(50 * "-")
     logger.info("Generating descriptions for the meals...")
-    if DEBUG:
-        descriptions = debug_variables["debug_list_of_descriptions"]
-    else:
-        descriptions = []
-        for menu_entry in list_of_meals:
-            descriptions.append(get_food_description(menu_entry, verbose=True))
+
+    descriptions = []
+    for menu_entry in list_of_meals:
+        descriptions.append(get_food_description(menu_entry, verbose=True))
 
     # -------------------------------------------------------------------------
     # Put the message together and send to Mattermost
