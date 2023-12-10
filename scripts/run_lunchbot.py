@@ -13,6 +13,8 @@ MATTERMOST_WEBHOOK_URL = os.getenv("MATTERMOST_WEBHOOK_URL")
 IMAGE_CLOUD_UPLOAD_URL = os.getenv("IMAGE_CLOUD_UPLOAD_URL")
 IMAGE_CLOUD_UPLOAD_TOKEN = os.getenv("IMAGE_CLOUD_UPLOAD_TOKEN")
 IMAGE_CLOUD_DOWNLOAD_URL = os.getenv("IMAGE_CLOUD_DOWNLOAD_URL")
+MESSAGE_PREFIX = os.getenv("MESSAGE_PREFIX")
+MESSAGE_SUFFIX = os.getenv("MESSAGE_SUFFIX")
 
 
 # TODO: add username as .env variable
@@ -127,14 +129,12 @@ def main():
     # Put the message together and send to Mattermost
     # ---
 
-    prefix = f"For today, we have the following meals ({ALSTERFOOD_WEBSITE_URL}):"
-
     # Generate markdown table
     table = "| Preview | Meal | Description | \n| --- | --- | --- |\n"
     for meal, desc, img_url in zip(list_of_meals, descriptions, images_cloud_urls):
         table += f"| ![preview]({img_url}) | **{meal}**  | {desc}| \n"
 
-    message = prefix + "\n\n" + table
+    message = MESSAGE_PREFIX + "\n" + table + "\n" + MESSAGE_SUFFIX
 
     logger.info("Posting the following message on Mattermost:")
     logger.info(message)

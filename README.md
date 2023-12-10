@@ -19,6 +19,8 @@ MATTERMOST_WEBHOOK_URL="<your Mattermost webhook URL>"
 IMAGE_CLOUD_UPLOAD_URL="<your image cloud upload URL>"
 IMAGE_CLOUD_UPLOAD_TOKEN="<your image cloud upload token>"
 IMAGE_CLOUD_DOWNLOAD_URL="<your image cloud download URL>"
+MESSAGE_PREFIX="<your message prefix>"
+MESSAGE_SUFFIX="<your message suffix>"
 ```
 
 ### Run the bot
