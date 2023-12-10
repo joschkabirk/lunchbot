@@ -1,3 +1,4 @@
+import logging
 import os
 from subprocess import run  # nosec
 from urllib import request  # nosec
@@ -16,7 +17,26 @@ IMAGE_CLOUD_UPLOAD_URL = os.getenv("IMAGE_CLOUD_UPLOAD_URL")
 IMAGE_CLOUD_UPLOAD_TOKEN = os.getenv("IMAGE_CLOUD_UPLOAD_TOKEN")
 IMAGE_CLOUD_DOWNLOAD_URL = os.getenv("IMAGE_CLOUD_DOWNLOAD_URL")
 
+
+# TODO: add username as .env variable
+# TODO: make logging colored?
+
 debug_variables = yaml.safe_load(open("debug_variables.yml"))
+
+logger = logging.getLogger("lunchbot")
+
+# Create a formatter that includes the time, log level, and message
+formatter = logging.Formatter("[%(asctime)s] - %(levelname)s - %(message)s")
+
+# Create a handler that outputs to the console, and set its formatter
+handler = logging.StreamHandler()
+handler.setFormatter(formatter)
+
+# Add the handler to the logger
+logger.addHandler(handler)
+
+# Set the log level
+logger.setLevel(logging.DEBUG)
 
 
 def main():
@@ -28,7 +48,9 @@ def main():
     else:
         list_of_meals, list_of_prices = fetch_lunch_menu(ALSTERFOOD_WEBSITE_URL)
 
-    print(list_of_meals)
+    logger.info("The following meals were found:")
+    for i, meal in enumerate(list_of_meals):
+        logger.info(f"  {i+1})  {meal}")
 
     # -------------------------------------------------------------------------
     # Generate images for the meals
@@ -41,8 +63,8 @@ def main():
         for menu_entry in list_of_meals:
             generated_image_url = generate_image(prompt=menu_entry)
             images.append(generated_image_url)
-            # Print the URL of the generated image
-            print(f"Generated Image URL: {generated_image_url}")
+            # log the URL of the generated image
+            logger.debug(f"Generated Image URL: {generated_image_url}")
 
     images_cloud_urls = []
 
@@ -66,8 +88,8 @@ def main():
         ]
         upload_command = " ".join(upload_command)
         run(upload_command, shell=True)  # nosec
-        # Print the URL of the generated image and its hash
-        print(f"Generated Image URL: {image_url}, Hash: {image_hash}")
+        # log the URL of the generated image and its hash
+        logger.debug(f"Generated Image URL: {image_url}, Hash: {image_hash}")
 
         images_cloud_urls.append(f"{IMAGE_CLOUD_DOWNLOAD_URL}{image_hash}.png")
 
@@ -94,8 +116,8 @@ def main():
 
     message = prefix + "\n\n" + table
 
-    print("The following message will be posted on Mattermost:")
-    print(message)
+    logger.info("Posting the following message on Mattermost:")
+    logger.info(message)
 
     send_message(
         url=MATTERMOST_WEBHOOK_URL,
