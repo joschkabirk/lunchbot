@@ -6,3 +6,4 @@ pre-commit
 openai
 black
 ruff
+python-dotenv

@@ -1,4 +1,3 @@
-import logging
 import os
 from subprocess import run  # nosec
 from urllib import request  # nosec
@@ -7,6 +6,7 @@ from lunchbot.alsterfood_scraping import fetch_lunch_menu
 from lunchbot.description_generation import get_food_description
 from lunchbot.image_generation import generate_hash, generate_image
 from lunchbot.mattermost_posting import send_message
+from lunchbot.utils import get_logger
 
 ALSTERFOOD_WEBSITE_URL = os.getenv("ALSTERFOOD_WEBSITE_URL")
 MATTERMOST_WEBHOOK_URL = os.getenv("MATTERMOST_WEBHOOK_URL")
@@ -23,20 +23,7 @@ if DESCRIPTION_SUFFIX is None:
     DESCRIPTION_SUFFIX = ""
 
 
-logger = logging.getLogger("lunchbot")
-
-# Create a formatter that includes the time, log level, and message
-formatter = logging.Formatter("[%(asctime)s] - %(levelname)s - %(message)s")
-
-# Create a handler that outputs to the console, and set its formatter
-handler = logging.StreamHandler()
-handler.setFormatter(formatter)
-
-# Add the handler to the logger
-logger.addHandler(handler)
-
-# Set the log level
-logger.setLevel(logging.DEBUG)
+logger = get_logger("lunchbot")
 
 
 def main():
