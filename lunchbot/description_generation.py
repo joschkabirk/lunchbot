@@ -1,7 +1,12 @@
+"""Generate a description for a meal based on a prompt."""
 from openai import OpenAI
 
 
-def get_food_description(meal_name, return_prompt_answer=False, system_content=None):
+def get_food_description(
+    meal_name: str,
+    return_prompt_answer: bool = False,
+    system_content: str = None,
+):
     """Generate a description for a meal based on a prompt.
 
     Parameters
@@ -10,6 +15,8 @@ def get_food_description(meal_name, return_prompt_answer=False, system_content=N
         The name of the meal to generate a description for.
     return_prompt_answer : bool, optional
         Whether to return the prompt and the answer, by default False
+    system_content : str, optional
+        The system content to use for the prompt, by default None
 
     Returns
     -------

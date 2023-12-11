@@ -1,9 +1,11 @@
+"""Image generation with DALL-E."""
 import hashlib
 
 from openai import OpenAI
 
 
-def generate_hash(input_string):
+def generate_hash(input_string: str):
+    """Get the first 20 characters of the SHA256 hash of a string."""
     return hashlib.sha256(input_string.encode()).hexdigest()[:20]
 
 
