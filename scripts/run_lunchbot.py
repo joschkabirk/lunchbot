@@ -136,7 +136,7 @@ def main():
 
     # Generate markdown table
     table = (
-        f"| Preview | Meal | Description {DESCRIPTION_SUFFIX}| "
+        f"| Preview | Dish | Description {DESCRIPTION_SUFFIX}| "
         "\n| --- | --- | --- |\n"
     )
     for meal, desc, img_url in zip(list_of_meals, descriptions, images_cloud_urls):
