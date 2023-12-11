@@ -130,7 +130,7 @@ def main():
 
     # Generate markdown table
     table = (
-        f"| Preview | Price | Info | Meal | Description {DESCRIPTION_SUFFIX}| "
+        f"| Preview | Price | Info | Dish | Description {DESCRIPTION_SUFFIX}| "
         "\n| --- | --- | --- | --- | --- |\n"
     )
     for dish in list_of_dishes:
