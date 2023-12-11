@@ -3,14 +3,20 @@
 Bot that extracts the lunch menu from the DESY canteen website and posts a message in
 a dedicated Mattermost channel.
 
-<img src=assets/lunchbot.svg width=600px style="border-radius:10px">
+At the moment, this implementation is designed to represent only one execution of
+the bot. To run it periodically, use e.g. `cron`.
+
+Overall, the whole setup is kinda DESY-specific due to the fact that the
+DESY Sync&Share is used to store the menu preview images.
+
+<img src=assets/lunchbot.excalidraw.svg width=500px style="border-radius:10px">
 
 ## Usage
 
 ### Requirements
 
 The easiest way to run this bot is to use the dedicated Docker image.
-The image is available on [Docker Hub at jobirk/lunchbot](https://hub.docker.com/r/jobirk/lunchbot).
+The image is available on [Docker Hub at `jobirk/lunchbot`](https://hub.docker.com/r/jobirk/lunchbot).
 
 Furthermore, you have to set the following environment variables in a `.env` file:
 
