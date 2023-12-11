@@ -1,3 +1,4 @@
+import logging
 import re
 from datetime import datetime, timedelta
 
@@ -8,9 +9,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-from lunchbot.utils import get_logger
-
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def fetch_todays_lunch_menu(url: str):
@@ -49,7 +48,7 @@ def fetch_todays_lunch_menu(url: str):
         driver.get(url)
 
         # Wait for up to 10 seconds for an element with ID 'target_element_id' to be present
-        wait = WebDriverWait(driver, 5)
+        wait = WebDriverWait(driver, 10)
         wait.until(EC.presence_of_element_located((By.ID, "group2-select-options-51")))
 
         # Get the page source after JavaScript execution

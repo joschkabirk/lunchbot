@@ -1,3 +1,4 @@
+import logging
 import os
 from subprocess import run  # nosec
 from urllib import request  # nosec
@@ -8,7 +9,12 @@ from lunchbot.alsterfood_scraping import fetch_todays_lunch_menu
 from lunchbot.description_generation import get_food_description
 from lunchbot.image_generation import generate_hash, generate_image
 from lunchbot.mattermost_posting import send_message
-from lunchbot.utils import get_logger
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
 
 load_dotenv()  # take environment variables from .env
 
@@ -27,7 +33,7 @@ if DESCRIPTION_SUFFIX is None:
     DESCRIPTION_SUFFIX = ""
 
 
-logger = get_logger("lunchbot")
+logger = logging.getLogger("lunchbot")
 
 
 def main():
