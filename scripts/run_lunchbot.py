@@ -8,39 +8,38 @@ from dotenv import load_dotenv
 from lunchbot.alsterfood_scraping import fetch_todays_lunch_menu
 from lunchbot.description_generation import get_food_description
 from lunchbot.image_generation import generate_hash, generate_image
-from lunchbot.mattermost_posting import send_message
-
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-)
-
-load_dotenv()  # take environment variables from .env
-
-ALSTERFOOD_WEBSITE_URL = os.getenv("ALSTERFOOD_WEBSITE_URL")
-MATTERMOST_WEBHOOK_URL = os.getenv("MATTERMOST_WEBHOOK_URL")
-USE_OPENAI_IMAGE_URL = os.getenv("USE_OPENAI_IMAGE_URL")
-IMAGE_CLOUD_UPLOAD_URL = os.getenv("IMAGE_CLOUD_UPLOAD_URL")
-IMAGE_CLOUD_UPLOAD_TOKEN = os.getenv("IMAGE_CLOUD_UPLOAD_TOKEN")
-IMAGE_CLOUD_DOWNLOAD_URL = os.getenv("IMAGE_CLOUD_DOWNLOAD_URL")
-MESSAGE_PREFIX = os.getenv("MESSAGE_PREFIX")
-MESSAGE_SUFFIX = os.getenv("MESSAGE_SUFFIX")
-MATTERMOST_USERNAME = os.getenv("MATTERMOST_USERNAME")
-SYSTEM_CONTENT = os.getenv("SYSTEM_CONTENT")
-DESCRIPTION_SUFFIX = os.getenv("DESCRIPTION_SUFFIX")
-
-
-logger = logging.getLogger("lunchbot")
+from lunchbot.mattermost_posting import send_message_via_webhook
 
 
 def main():
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+
+    load_dotenv()  # take environment variables from .env
+
+    ALSTERFOOD_WEBSITE_URL = os.getenv("ALSTERFOOD_WEBSITE_URL")
+    MATTERMOST_WEBHOOK_URL = os.getenv("MATTERMOST_WEBHOOK_URL")
+    USE_OPENAI_IMAGE_URL = os.getenv("USE_OPENAI_IMAGE_URL")
+    IMAGE_CLOUD_UPLOAD_URL = os.getenv("IMAGE_CLOUD_UPLOAD_URL")
+    IMAGE_CLOUD_UPLOAD_TOKEN = os.getenv("IMAGE_CLOUD_UPLOAD_TOKEN")
+    IMAGE_CLOUD_DOWNLOAD_URL = os.getenv("IMAGE_CLOUD_DOWNLOAD_URL")
+    MESSAGE_PREFIX = os.getenv("MESSAGE_PREFIX")
+    MESSAGE_SUFFIX = os.getenv("MESSAGE_SUFFIX")
+    MATTERMOST_USERNAME = os.getenv("MATTERMOST_USERNAME")
+    SYSTEM_CONTENT = os.getenv("SYSTEM_CONTENT")
+    DESCRIPTION_SUFFIX = os.getenv("DESCRIPTION_SUFFIX")
+
+    logger = logging.getLogger("lunchbot")
+
     # some initial logging
     logger.info(50 * "-")
     logger.info("LUNCHBOT hungry!")
     logger.info("LUNCHBOT will be looking for food now...")
     logger.info(50 * "-")
-    
+
     # -------------------------------------------------------------------------
     # input validation
     if ALSTERFOOD_WEBSITE_URL is None:
@@ -67,7 +66,9 @@ def main():
         MATTERMOST_USERNAME = "Lunchbot"
     if SYSTEM_CONTENT is None:
         SYSTEM_CONTENT = "You are a 5-star restaurant critic. You are writing a review of the following dish:"
-        logger.warning(f"SYSTEM_CONTENT is not set, using default value: {SYSTEM_CONTENT}")
+        logger.warning(
+            f"SYSTEM_CONTENT is not set, using default value: {SYSTEM_CONTENT}"
+        )
     if DESCRIPTION_SUFFIX is None:
         DESCRIPTION_SUFFIX = ""
 
@@ -183,8 +184,8 @@ def main():
     logger.info("Posting the following message on Mattermost:")
     logger.info(message)
 
-    send_message(
-        url=MATTERMOST_WEBHOOK_URL,
+    send_message_via_webhook(
+        webhook_url=MATTERMOST_WEBHOOK_URL,
         message=message,
         username=MATTERMOST_USERNAME,
     )
