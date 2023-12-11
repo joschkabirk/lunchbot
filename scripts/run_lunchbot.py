@@ -2,11 +2,15 @@ import os
 from subprocess import run  # nosec
 from urllib import request  # nosec
 
-from lunchbot.alsterfood_scraping import fetch_lunch_menu
+from dotenv import load_dotenv
+
+from lunchbot.alsterfood_scraping import fetch_todays_lunch_menu
 from lunchbot.description_generation import get_food_description
 from lunchbot.image_generation import generate_hash, generate_image
 from lunchbot.mattermost_posting import send_message
 from lunchbot.utils import get_logger
+
+load_dotenv()  # take environment variables from .env
 
 ALSTERFOOD_WEBSITE_URL = os.getenv("ALSTERFOOD_WEBSITE_URL")
 MATTERMOST_WEBHOOK_URL = os.getenv("MATTERMOST_WEBHOOK_URL")
@@ -42,11 +46,11 @@ def main():
     logger.info(
         f"Fetching the lunch menu from Alsterfood... ({ALSTERFOOD_WEBSITE_URL})"
     )
-    list_of_meals, list_of_prices = fetch_lunch_menu(ALSTERFOOD_WEBSITE_URL)
+    list_of_dishes = fetch_todays_lunch_menu(ALSTERFOOD_WEBSITE_URL)
 
-    logger.info("The following meals were found:")
-    for i, meal in enumerate(list_of_meals):
-        logger.info(f"  {i+1})  {meal}")
+    logger.info("The following dishes were found:")
+    for i, dish_name in enumerate(list_of_dishes):
+        logger.info(f"  {i+1})  {dish_name}")
 
     # -------------------------------------------------------------------------
     # Generate images and descriptions for the meals
@@ -54,14 +58,12 @@ def main():
     logger.info(50 * "-")
     logger.info("Generating images for the meals...")
 
-    images = []
-    descriptions = []
-    images_cloud_urls = []
-    for meal in list_of_meals:
+    for dish in list_of_dishes:
+        dish_name = dish["name"]
         # generate a unique hash for the image
-        meal_hash = generate_hash(meal)
+        meal_hash = generate_hash(dish_name)
 
-        logger.debug(f"Meal: {meal}")
+        logger.debug(f"Meal: {dish_name}")
         logger.debug(f"Hash: {meal_hash}")
 
         # --------------------------------------------------------------------
@@ -69,11 +71,10 @@ def main():
 
         if os.path.isfile(f"images/{meal_hash}.png"):
             # if the image already exists in images/, skip the download
-            logger.info(f"Image already exists for meal '{meal}'")
+            logger.info(f"Image already exists for meal '{dish_name}'")
         else:
             # Generate an image with DALL-E based on the menu entries
-            generated_image_url = generate_image(prompt=meal)
-            images.append(generated_image_url)
+            generated_image_url = generate_image(prompt=dish_name)
             # log the URL of the generated image
             logger.info(f"Generated Image URL: {generated_image_url}")
 
@@ -96,7 +97,7 @@ def main():
         upload_command = " ".join(upload_command)
         run(upload_command, shell=True)  # nosec
 
-        images_cloud_urls.append(f"{IMAGE_CLOUD_DOWNLOAD_URL}{meal_hash}.png")
+        dish["image_url"] = f"{IMAGE_CLOUD_DOWNLOAD_URL}{meal_hash}.png"
 
         # -------------------------------------------------------------------------
         # Generate the description
@@ -104,18 +105,18 @@ def main():
         # check if images/<hash>.txt exists, if yes, skip the description generation
         # and just read the description from the file
         if os.path.isfile(f"images/{meal_hash}.txt"):
-            logger.info(f"Description already exists for meal '{meal}'")
+            logger.info(f"Description already exists for meal '{dish_name}'")
             with open(f"images/{meal_hash}.txt") as f:
-                descriptions.append(f.read())
+                description = f.read()
         else:
-            logger.info(f"Generating description for meal {meal}")
+            logger.info(f"Generating description for meal {dish_name}")
             description = get_food_description(
-                meal_name=meal,
+                meal_name=dish_name,
                 system_content=SYSTEM_CONTENT,
             )
             with open(f"images/{meal_hash}.txt", "w") as f:
                 f.write(description)
-            descriptions.append(description)
+        dish["description"] = description
 
     # -------------------------------------------------------------------------
     # Put the message together and send to Mattermost
@@ -123,11 +124,17 @@ def main():
 
     # Generate markdown table
     table = (
-        f"| Preview | Meal | Description {DESCRIPTION_SUFFIX}| "
-        "\n| --- | --- | --- |\n"
+        f"| Preview | Price | Info | Meal | Description {DESCRIPTION_SUFFIX}| "
+        "\n| --- | --- | --- | --- | --- |\n"
     )
-    for meal, desc, img_url in zip(list_of_meals, descriptions, images_cloud_urls):
-        table += f"| ![preview]({img_url}) | **{meal}**  | {desc}| \n"
+    for dish in list_of_dishes:
+        table += (
+            f"| ![preview]({dish['image_url']}) "
+            f"| {dish['price']} "
+            f"| {dish['info']} "
+            f"| **{dish['name']}**  "
+            f"| {dish['description']}| \n"
+        )
 
     message = MESSAGE_PREFIX + "\n" + table + "\n" + MESSAGE_SUFFIX
 
