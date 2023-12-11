@@ -20,6 +20,7 @@ load_dotenv()  # take environment variables from .env
 
 ALSTERFOOD_WEBSITE_URL = os.getenv("ALSTERFOOD_WEBSITE_URL")
 MATTERMOST_WEBHOOK_URL = os.getenv("MATTERMOST_WEBHOOK_URL")
+USE_OPENAI_IMAGE_URL = os.getenv("USE_OPENAI_IMAGE_URL")
 IMAGE_CLOUD_UPLOAD_URL = os.getenv("IMAGE_CLOUD_UPLOAD_URL")
 IMAGE_CLOUD_UPLOAD_TOKEN = os.getenv("IMAGE_CLOUD_UPLOAD_TOKEN")
 IMAGE_CLOUD_DOWNLOAD_URL = os.getenv("IMAGE_CLOUD_DOWNLOAD_URL")
@@ -28,9 +29,6 @@ MESSAGE_SUFFIX = os.getenv("MESSAGE_SUFFIX")
 MATTERMOST_USERNAME = os.getenv("MATTERMOST_USERNAME")
 SYSTEM_CONTENT = os.getenv("SYSTEM_CONTENT")
 DESCRIPTION_SUFFIX = os.getenv("DESCRIPTION_SUFFIX")
-
-if DESCRIPTION_SUFFIX is None:
-    DESCRIPTION_SUFFIX = ""
 
 
 logger = logging.getLogger("lunchbot")
@@ -42,6 +40,36 @@ def main():
     logger.info("LUNCHBOT hungry!")
     logger.info("LUNCHBOT will be looking for food now...")
     logger.info(50 * "-")
+    
+    # -------------------------------------------------------------------------
+    # input validation
+    if ALSTERFOOD_WEBSITE_URL is None:
+        raise ValueError("ALSTERFOOD_WEBSITE_URL is not set")
+    if MATTERMOST_WEBHOOK_URL is None:
+        raise ValueError("MATTERMOST_WEBHOOK_URL is not set")
+    if USE_OPENAI_IMAGE_URL == "true":
+        logger.warning("Using OpenAI image URL (will expire after 1 hour)")
+        logger.info("IMAGE_CLOUD_UPLOAD_URL will be ignored")
+        logger.info("IMAGE_CLOUD_UPLOAD_TOKEN will be ignored")
+        logger.info("IMAGE_CLOUD_DOWNLOAD_URL will be ignored")
+    else:
+        if IMAGE_CLOUD_UPLOAD_URL is None:
+            raise ValueError("IMAGE_CLOUD_UPLOAD_URL is not set")
+        if IMAGE_CLOUD_UPLOAD_TOKEN is None:
+            raise ValueError("IMAGE_CLOUD_UPLOAD_TOKEN is not set")
+        if IMAGE_CLOUD_DOWNLOAD_URL is None:
+            raise ValueError("IMAGE_CLOUD_DOWNLOAD_URL is not set")
+    if MESSAGE_PREFIX is None:
+        MESSAGE_PREFIX = ""
+    if MESSAGE_SUFFIX is None:
+        MESSAGE_SUFFIX = ""
+    if MATTERMOST_USERNAME is None:
+        MATTERMOST_USERNAME = "Lunchbot"
+    if SYSTEM_CONTENT is None:
+        SYSTEM_CONTENT = "You are a 5-star restaurant critic. You are writing a review of the following dish:"
+        logger.warning(f"SYSTEM_CONTENT is not set, using default value: {SYSTEM_CONTENT}")
+    if DESCRIPTION_SUFFIX is None:
+        DESCRIPTION_SUFFIX = ""
 
     # create the images/ directory if it doesn't exist
     os.makedirs("images", exist_ok=True)
@@ -74,36 +102,44 @@ def main():
 
         # --------------------------------------------------------------------
         # Generate the image for the meal
-
-        if os.path.isfile(f"images/{meal_hash}.png"):
-            # if the image already exists in images/, skip the download
-            logger.info(f"Image already exists for meal '{dish_name}'")
-        else:
+        if USE_OPENAI_IMAGE_URL == "true":
+            logger.warning("Using OpenAI image URL (will expire after 1 hour)")
             # Generate an image with DALL-E based on the menu entries
             generated_image_url = generate_image(prompt=dish_name)
-            # log the URL of the generated image
-            logger.info(f"Generated Image URL: {generated_image_url}")
+            dish["image_url"] = generated_image_url
 
-            # download the image from the openAI url and save in images/image_hash.png
-            # (openAI urls are only valid for one hour)
-            # command = f"curl --output images/asdf{i}.png {image_url}"
-            request.urlretrieve(generated_image_url, f"images/{meal_hash}.png")  # nosec
+        else:
+            if os.path.isfile(f"images/{meal_hash}.png"):
+                # if the image already exists in images/, skip the download
+                logger.info(f"Image already exists for meal '{dish_name}'")
+            else:
+                # Generate an image with DALL-E based on the menu entries
+                generated_image_url = generate_image(prompt=dish_name)
+                # log the URL of the generated image
+                logger.info(f"Generated Image URL: {generated_image_url}")
 
-        # upload the image to the cloud (where it will be available for unlimited
-        # time / until we delete it, but we don't have to worry about the
-        # image expiring after a short time)
-        upload_command = [
-            "curl",
-            "-u",
-            f"'{IMAGE_CLOUD_UPLOAD_TOKEN}'",
-            "-T",
-            f"images/{meal_hash}.png",
-            f"{IMAGE_CLOUD_UPLOAD_URL}{meal_hash}.png",
-        ]
-        upload_command = " ".join(upload_command)
-        run(upload_command, shell=True)  # nosec
+                # download the image from the openAI url and save in images/image_hash.png
+                # (openAI urls are only valid for one hour)
+                # command = f"curl --output images/asdf{i}.png {image_url}"
+                request.urlretrieve(
+                    generated_image_url, f"images/{meal_hash}.png"
+                )  # nosec
 
-        dish["image_url"] = f"{IMAGE_CLOUD_DOWNLOAD_URL}{meal_hash}.png"
+            # upload the image to the cloud (where it will be available for unlimited
+            # time / until we delete it, but we don't have to worry about the
+            # image expiring after a short time)
+            upload_command = [
+                "curl",
+                "-u",
+                f"'{IMAGE_CLOUD_UPLOAD_TOKEN}'",
+                "-T",
+                f"images/{meal_hash}.png",
+                f"{IMAGE_CLOUD_UPLOAD_URL}{meal_hash}.png",
+            ]
+            upload_command = " ".join(upload_command)
+            run(upload_command, shell=True)  # nosec
+
+            dish["image_url"] = f"{IMAGE_CLOUD_DOWNLOAD_URL}{meal_hash}.png"
 
         # -------------------------------------------------------------------------
         # Generate the description

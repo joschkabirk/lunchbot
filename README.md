@@ -24,6 +24,7 @@ Furthermore, you have to set the following environment variables in a `.env` fil
 ALSTERFOOD_WEBSITE_URL="https://desy.myalsterfood.de/"
 OPENAI_API_KEY="<your OpenAI API key>"
 MATTERMOST_WEBHOOK_URL="<your Mattermost webhook URL>"
+USE_OPENAI_IMAGES_URL="<if set to 'true', the bot will use the OpenAI image API to generate images (which expire after 1 hour)>"
 IMAGE_CLOUD_UPLOAD_URL="<your image cloud upload URL>"
 IMAGE_CLOUD_UPLOAD_TOKEN="<your image cloud upload token>"
 IMAGE_CLOUD_DOWNLOAD_URL="<your image cloud download URL>"
