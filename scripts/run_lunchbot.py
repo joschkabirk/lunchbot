@@ -93,6 +93,8 @@ def main():
     logger.info(50 * "-")
     logger.info("Generating images for the meals...")
 
+    description = None
+
     for dish in list_of_dishes:
         dish_name = dish["name"]
         # generate a unique hash for the image
@@ -152,10 +154,16 @@ def main():
             with open(f"images/{meal_hash}.txt") as f:
                 description = f.read()
         else:
-            logger.info(f"Generating description for meal {dish_name}")
+            logger.info(f"Generating description for meal '{dish_name}'")
+
+            if description is None:
+                prompt_system_content = SYSTEM_CONTENT
+            else:
+                prompt_system_content = f"{SYSTEM_CONTENT} But please don't start the sentence with '{description[:50]}...'"
+
             description = get_food_description(
                 meal_name=dish_name,
-                system_content=SYSTEM_CONTENT,
+                system_content=prompt_system_content,
             )
             with open(f"images/{meal_hash}.txt", "w") as f:
                 f.write(description)

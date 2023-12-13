@@ -1,5 +1,9 @@
 """Generate a description for a meal based on a prompt."""
+import logging
+
 from openai import OpenAI
+
+logger = logging.getLogger(__name__)
 
 
 def get_food_description(
@@ -33,6 +37,9 @@ def get_food_description(
         )
 
     prompt = meal_name + " - please describe this meal in two sentences."
+
+    logger.info(f"Prompt: {prompt}")
+    logger.info(f"System Content: {system_content}")
 
     completion = client.chat.completions.create(
         model="gpt-3.5-turbo",
