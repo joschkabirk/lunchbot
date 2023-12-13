@@ -104,9 +104,11 @@ def fetch_todays_lunch_menu(url: str):
         # ----------- Find different dishes -----------
 
         for menu_entry in menu_entries_table:
+            entry_title = menu_entry.find("div", class_="accent1-text")
+
             tbody = menu_entry.find_all("tbody")
 
-            logger.info("Entries from menu_entry:")
+            logger.info(f"Entries from menu_entry: '{entry_title.text}'")
             # print all the different elements (for debugging)
             for i_tr, tr in enumerate(tbody):
                 for i_td, td in enumerate(tr):
@@ -114,8 +116,8 @@ def fetch_todays_lunch_menu(url: str):
                         logger.info(f"{i_tr}, {i_td}, {i_p} {p.text}")
 
             # skip soups
-            if "soup" in menu_entry.text.lower():
-                logger.info("Skipping soup.")
+            if "soup" in entry_title.text.lower():
+                logger.info(">>> Skipping soup.")
                 continue
 
             # extract the dish name, info and price (check the logged output
@@ -136,3 +138,10 @@ def fetch_todays_lunch_menu(url: str):
             )
 
     return dishes_list
+
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
+    url = "https://desy.myalsterfood.de/"
+    todays_menu = fetch_todays_lunch_menu(url)
+    print(todays_menu)
