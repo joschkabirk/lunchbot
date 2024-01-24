@@ -127,6 +127,9 @@ def fetch_todays_lunch_menu(url: str):
             dish_name = list(list(list(tbody)[0])[0])[0].text
             dish_info = list(list(list(tbody)[0])[1])[0].text
             dish_price = list(list(list(tbody)[0])[1])[2].text.replace(" ", "")
+            
+            if dish_name == "":
+                dish_name = "Surprise dish"
 
             logger.info(10 * "-")
             logger.info(f"--> | {dish_price} | {dish_info} | {dish_name} |")
