@@ -127,7 +127,7 @@ def fetch_todays_lunch_menu(url: str):
             dish_name = list(list(list(tbody)[0])[0])[0].text
             dish_info = list(list(list(tbody)[0])[1])[0].text
             dish_price = list(list(list(tbody)[0])[1])[2].text.replace(" ", "")
-            
+
             if dish_name == "":
                 dish_name = "Surprise dish"
 
@@ -139,6 +139,7 @@ def fetch_todays_lunch_menu(url: str):
                     "name": dish_name,
                     "info": dish_info,
                     "price": dish_price,
+                    "canteen": "DESY Canteen",
                 }
             )
 

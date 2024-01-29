@@ -5,7 +5,8 @@ from urllib import request  # nosec
 
 from dotenv import load_dotenv
 
-from lunchbot.alsterfood_scraping import fetch_todays_lunch_menu
+import lunchbot.alsterfood_scraping as alsterfood_scraping
+import lunchbot.cfel_scraping as cfel_scraping
 from lunchbot.description_generation import get_food_description
 from lunchbot.image_generation import generate_hash, generate_image
 from lunchbot.mattermost_posting import send_message_via_webhook
@@ -21,6 +22,7 @@ def main():
     load_dotenv()  # take environment variables from .env
 
     ALSTERFOOD_WEBSITE_URL = os.getenv("ALSTERFOOD_WEBSITE_URL")
+    CFEL_WEBSITE_URL = os.getenv("CFEL_WEBSITE_URL")
     MATTERMOST_WEBHOOK_URL = os.getenv("MATTERMOST_WEBHOOK_URL")
     USE_OPENAI_IMAGE_URL = os.getenv("USE_OPENAI_IMAGE_URL")
     IMAGE_CLOUD_UPLOAD_URL = os.getenv("IMAGE_CLOUD_UPLOAD_URL")
@@ -81,7 +83,12 @@ def main():
     logger.info(
         f"Fetching the lunch menu from Alsterfood... ({ALSTERFOOD_WEBSITE_URL})"
     )
-    list_of_dishes = fetch_todays_lunch_menu(ALSTERFOOD_WEBSITE_URL)
+    list_of_dishes = alsterfood_scraping.fetch_todays_lunch_menu(ALSTERFOOD_WEBSITE_URL)
+
+    try:
+        list_of_dishes += cfel_scraping.fetch_todays_lunch_menu(CFEL_WEBSITE_URL)
+    except Exception as e:
+        logger.error(f"An error occurred while fetching CFEL lunch menu: {str(e)}")
 
     logger.info("The following dishes were found:")
     for i, dish_name in enumerate(list_of_dishes):
@@ -174,20 +181,40 @@ def main():
     # ---
 
     # Generate markdown table
-    table = (
-        f"| Preview | Price | Info | Dish | Description {DESCRIPTION_SUFFIX}| "
+    table_header = (
+        f"\n| Preview | Price | Info | Dish | Description {DESCRIPTION_SUFFIX}| "
         "\n| --- | --- | --- | --- | --- |\n"
     )
-    for dish in list_of_dishes:
-        table += (
-            f"| ![preview]({dish['image_url']}) "
-            f"| {dish['price']} "
-            f"| {dish['info']} "
-            f"| **{dish['name']}**  "
-            f"| {dish['description']}| \n"
-        )
+    table_desy_canteen = "**DESY Canteen**\n" + table_header
+    table_cfel_cafe = "**Cafe CFEL**\n" + table_header
 
-    message = MESSAGE_PREFIX + "\n" + table + "\n" + MESSAGE_SUFFIX
+    for dish in list_of_dishes:
+        if dish["canteen"] == "DESY Canteen":
+            table_desy_canteen += (
+                f"| ![preview]({dish['image_url']}) "
+                f"| {dish['price']} "
+                f"| {dish['info']} "
+                f"| **{dish['name']}**  "
+                f"| {dish['description']}| \n"
+            )
+        elif dish["canteen"] == "Cafe CFEL":
+            table_cfel_cafe += (
+                f"| ![preview]({dish['image_url']}) "
+                f"| {dish['price']} "
+                f"| {dish['info']} "
+                f"| **{dish['name']}**  "
+                f"| {dish['description']}| \n"
+            )
+
+    message = (
+        MESSAGE_PREFIX
+        + "\n"
+        + table_cfel_cafe
+        + "\n"
+        + table_desy_canteen
+        + "\n"
+        + MESSAGE_SUFFIX
+    )
 
     logger.info("Posting the following message on Mattermost:")
     logger.info(message)
