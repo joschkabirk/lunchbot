@@ -118,8 +118,8 @@ def fetch_todays_lunch_menu(url: str):
                         logger.info(f"{i_tr}, {i_td}, {i_p} {p.text}")
 
             # skip soups
-            if "soup" in entry_title.text.lower():
-                logger.info(">>> Skipping soup.")
+            if "main" not in entry_title.text.lower():
+                logger.info(">>> Skipping non-main dish.")
                 continue
 
             # extract the dish name, info and price (check the logged output
