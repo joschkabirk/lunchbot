@@ -4,3 +4,5 @@
 FROM jobirk/lunchbot:latest
 
 RUN bash -c "source /venv_container/bin/activate && pip install flask flask_session cachelib apscheduler"
+
+CMD ["bash", "scripts/run_website.sh"]
