@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <h1>You have visited this page {{ counter }} times</h1>
+    <button onclick="fetch('/run-script', { method: 'POST' }).then(response => location.reload()).catch(error => console.error(error))">Run script</button>
+    <h2>Logs:</h2>
+    <ul>
+    {% for log in logs %}
+        <li>{{ log }}</li>
+    {% endfor %}
+    </ul>
+</body>
+</html>
