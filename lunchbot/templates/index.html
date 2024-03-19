@@ -1,17 +1,58 @@
 <!DOCTYPE html>
 <html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+            padding: 20px;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #logs {
+            font-family: monospace;
+            height: 300px;
+            overflow: auto;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
 <body>
-    <h1>You have visited this page {{ counter }} times</h1>
-    <button onclick="fetch('/run-script', { method: 'POST' }).then(response => location.reload()).catch(error => console.error(error))">Run script</button>
-    <h2>Logs:</h2>
-    <div id="logs" style="font-family: monospace; height: 500px; overflow: auto;"></div>
+    <div class="container">
+        <h3>Lunchbot dashboard.</h3>
+        <h5>You have visited this page {{ counter }} times</h5>
+        <button onclick="fetch('/run-script', { method: 'POST' }).then(response => location.reload()).catch(error => console.error(error))">Run script</button>
+        <h4>Logs:</h4>
+        <div id="logs"></div>
+    </div>
+    <script>
+    fetch('/logs').then(response => response.text()).then(text => {
+        var html = text.replace(/\n/g, '<br>');
+        var logsDiv = document.getElementById('logs');
+        logsDiv.innerHTML = html;
+        logsDiv.scrollTop = logsDiv.scrollHeight;
+    }).catch(error => console.error(error));
+    </script>
 </body>
-<script>
-fetch('/logs').then(response => response.text()).then(text => {
-    var html = text.replace(/\n/g, '<br>');
-    var logsDiv = document.getElementById('logs');
-    logsDiv.innerHTML = html;
-    logsDiv.scrollTop = logsDiv.scrollHeight;
-}).catch(error => console.error(error));
-</script>
 </html>
