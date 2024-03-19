@@ -2,15 +2,22 @@ import logging
 import os
 from subprocess import run  # nosec
 from urllib import request  # nosec
+import argparse
 
 from dotenv import load_dotenv
 
 from lunchbot.mattermost_posting import send_message_via_webhook
 
-message = "test message"
+parser = argparse.ArgumentParser(description="Send a message to Mattermost")
+parser.add_argument(
+    "--message",
+    type=str,
+    help="The message to send to Mattermost",
+    default="test message",
+)
 
 
-def main():
+def main(message):
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -38,4 +45,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    args = parser.parse_args()
+    main(message=args.message)
