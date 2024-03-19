@@ -1,9 +1,7 @@
 #!/bin/bash
 
-# run this script in the head of the repo to handle pythonpath correctly
+# run this script in the root of the repo to handle pythonpath correctly
+# i.e. do ./scripts/run_website.sh in the root of the repo
 
-source .env
-source /venv_container/bin/activate
-export PYTHONPATH=$PWD:$PYTHONPATH
-
+source setup.sh
 python lunchbot/website.py
