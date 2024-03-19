@@ -4,10 +4,14 @@
     <h1>You have visited this page {{ counter }} times</h1>
     <button onclick="fetch('/run-script', { method: 'POST' }).then(response => location.reload()).catch(error => console.error(error))">Run script</button>
     <h2>Logs:</h2>
-    <ul>
-    {% for log in logs %}
-        <li>{{ log }}</li>
-    {% endfor %}
-    </ul>
+    <div id="logs"></div>
 </body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.9.1/showdown.min.js"></script>
+<script>
+fetch('/logs').then(response => response.text()).then(text => {
+    var converter = new showdown.Converter(),
+    html = converter.makeHtml(text);
+    document.getElementById('logs').innerHTML = html;
+}).catch(error => console.error(error));
+</script>
 </html>

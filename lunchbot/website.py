@@ -37,6 +37,11 @@ def run_script_route():
     run_script()
     return ('', 204)
 
+@app.route('/logs')
+def logs_route():
+    with open("/tmp/lunchbot_run_logs.txt") as f:
+        return f.read()
+
 @app.route('/')
 def home():
     if 'counter' not in session:
