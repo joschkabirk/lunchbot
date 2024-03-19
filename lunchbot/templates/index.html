@@ -4,12 +4,14 @@
     <h1>You have visited this page {{ counter }} times</h1>
     <button onclick="fetch('/run-script', { method: 'POST' }).then(response => location.reload()).catch(error => console.error(error))">Run script</button>
     <h2>Logs:</h2>
-    <div id="logs" style="font-family: monospace;"></div>
+    <div id="logs" style="font-family: monospace; height: 500px; overflow: auto;"></div>
 </body>
 <script>
 fetch('/logs').then(response => response.text()).then(text => {
     var html = text.replace(/\n/g, '<br>');
-    document.getElementById('logs').innerHTML = html;
+    var logsDiv = document.getElementById('logs');
+    logsDiv.innerHTML = html;
+    logsDiv.scrollTop = logsDiv.scrollHeight;
 }).catch(error => console.error(error));
 </script>
 </html>
