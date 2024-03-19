@@ -43,6 +43,7 @@
         <h3>Lunchbot dashboard.</h3>
         <h5>You have visited this page {{ counter }} times</h5>
         <button onclick="fetch('/run-script', { method: 'POST' }).then(response => location.reload()).catch(error => console.error(error))">Run script</button>
+        <button onclick="fetchLogs()">Refresh Logs</button>
         <h4>Logs:</h4>
         <div id="logs"></div>
     </div>
@@ -55,9 +56,6 @@
             logsDiv.scrollTop = logsDiv.scrollHeight;
         }).catch(error => console.error(error));
     }
-
-    // Fetch logs every second
-    setInterval(fetchLogs, 1000);
     </script>
 </body>
 </html>
