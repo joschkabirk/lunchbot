@@ -43,8 +43,8 @@
         <h3>Lunchbot dashboard.</h3>
         <h5>You have visited this page {{ counter }} times</h5>
         <button onclick="fetch('/run-script', { method: 'POST' }).then(response => location.reload()).catch(error => console.error(error))">Run script</button>
-        <button onclick="fetchLogs()">Refresh Logs</button>
         <h4>Logs:</h4>
+        <button onclick="fetchLogs()">Refresh Logs</button> <br><br>
         <div id="logs"></div>
     </div>
     <script>
@@ -56,6 +56,8 @@
             logsDiv.scrollTop = logsDiv.scrollHeight;
         }).catch(error => console.error(error));
     }
+
+    window.onload = fetchLogs;
     </script>
 </body>
 </html>
