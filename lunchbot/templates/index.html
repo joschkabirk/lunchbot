@@ -47,12 +47,17 @@
         <div id="logs"></div>
     </div>
     <script>
-    fetch('/logs').then(response => response.text()).then(text => {
-        var html = text.replace(/\n/g, '<br>');
-        var logsDiv = document.getElementById('logs');
-        logsDiv.innerHTML = html;
-        logsDiv.scrollTop = logsDiv.scrollHeight;
-    }).catch(error => console.error(error));
+    function fetchLogs() {
+        fetch('/logs').then(response => response.text()).then(text => {
+            var html = text.replace(/\n/g, '<br>');
+            var logsDiv = document.getElementById('logs');
+            logsDiv.innerHTML = html;
+            logsDiv.scrollTop = logsDiv.scrollHeight;
+        }).catch(error => console.error(error));
+    }
+
+    // Fetch logs every second
+    setInterval(fetchLogs, 1000);
     </script>
 </body>
 </html>
