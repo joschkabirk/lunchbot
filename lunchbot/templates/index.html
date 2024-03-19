@@ -53,6 +53,9 @@
         <button
             onclick="fetch('/run-script', { method: 'POST' }).then(response => location.reload()).catch(error => console.error(error))">Run
             script</button>
+        <h4>Send Message:</h4>
+        <input id="message" type="text">
+        <button onclick="sendMessage()">Send</button>
         <h4>Logs:</h4>
         <button onclick="fetchLogs()">Refresh Logs</button> <br><br>
         <div id="logs"></div>
@@ -68,6 +71,23 @@
         }
 
         window.onload = fetchLogs;
+    </script>
+    <script>
+        function sendMessage() {
+            var message = document.getElementById('message').value;
+            fetch('/send-message', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message: message }),
+            }).then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                document.getElementById('message').value = '';
+            }).catch(error => console.error(error));
+        }
     </script>
 </body>
 

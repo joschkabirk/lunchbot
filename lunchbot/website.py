@@ -1,4 +1,5 @@
-from flask import Flask, session, render_template
+from flask import Flask, session, render_template, request
+import json
 import os
 from flask_session import Session
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -35,6 +36,14 @@ atexit.register(lambda: scheduler.shutdown())
 @app.route('/run-script', methods=['POST'])
 def run_script_route():
     run_script()
+    return ('', 204)
+
+
+@app.route('/send-message', methods=['POST'])
+def send_message_route():
+    data = json.loads(request.data)
+    message = data['message']
+    os.system(f'python scripts/send_message.py --message "{message}"')
     return ('', 204)
 
 @app.route('/logs')
