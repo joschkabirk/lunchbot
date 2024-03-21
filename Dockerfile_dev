@@ -1,8 +1,0 @@
-# this is just a dev dockerfile to add stuff on top of the actual image
-# for testing purposes with very bad internet connection
-# TODO: move this all into the main Dockerfile
-FROM jobirk/lunchbot:latest
-
-RUN bash -c "source /venv_container/bin/activate && pip install flask flask_session cachelib apscheduler"
-
-CMD ["bash", "scripts/run_website.sh"]
