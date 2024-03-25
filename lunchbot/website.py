@@ -63,5 +63,5 @@ if __name__ == "__main__":
     # create logs file
     with open("/tmp/lunchbot_run_logs.txt", "w") as f:
         f.write("Lunchbot logs\n")
-    app.run(debug=True, host="0.0.0.0", port=777)
+    app.run(debug=True, host="0.0.0.0", port=8080)
     # run_script()
