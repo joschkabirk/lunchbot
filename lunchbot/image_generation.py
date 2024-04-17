@@ -30,13 +30,17 @@ def generate_image(
     """
     client = OpenAI()
 
-    response = client.images.generate(
-        model=model,
-        prompt=prompt,
-        size=size,
-        quality=quality,
-        n=1,
-    )
-    image_url = response.data[0].url
+    try:
+        response = client.images.generate(
+            model=model,
+            prompt=prompt,
+            size=size,
+            quality=quality,
+            n=1,
+        )
+        image_url = response.data[0].url
+    except Exception as e:
+        print(f"Exception raised during image generation: {e}")
+        image_url = "https://syncandshare.desy.de/index.php/s/QRHbNjEPB39FF55/download?path=lunchbot_assets&files=technical_difficulties.JPG"
 
     return image_url
