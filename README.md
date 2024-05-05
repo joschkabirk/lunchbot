@@ -28,6 +28,7 @@ Furthermore, you have to set the following environment variables in a `.env` fil
 ALSTERFOOD_WEBSITE_URL="https://desy.myalsterfood.de/"
 OPENAI_API_KEY="<your OpenAI API key>"
 MATTERMOST_WEBHOOK_URL="<your Mattermost webhook URL>"
+MATTERMOST_WEBHOOK_URL_ALERT="<your Mattermost webhook URL for alert messages>"
 USE_OPENAI_IMAGES_URL="<if set to 'true', the bot will use the OpenAI image API to generate images (which expire after 1 hour)>"
 IMAGE_CLOUD_UPLOAD_URL="<your image cloud upload URL>"
 IMAGE_CLOUD_UPLOAD_TOKEN="<your image cloud upload token>"
@@ -40,6 +41,7 @@ MESSAGE_SUFFIX_SUN="<your message suffix for sundays>"
 MATTERMOST_USERNAME="<username displayed for the bot>"
 SYSTEM_CONTENT="<description of the system that describes the food>"
 DESCRIPTION_SUFFIX="<suffix to put after "Description" in the table header>"
+ALERT_PREFIX="<prefix for the alert message>"
 ```
 
 ### Run the bot
