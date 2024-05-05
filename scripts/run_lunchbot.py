@@ -1,4 +1,5 @@
 import logging
+import datetime
 import os
 from subprocess import run  # nosec
 from urllib import request  # nosec
@@ -29,7 +30,25 @@ def main():
     IMAGE_CLOUD_UPLOAD_TOKEN = os.getenv("IMAGE_CLOUD_UPLOAD_TOKEN")
     IMAGE_CLOUD_DOWNLOAD_URL = os.getenv("IMAGE_CLOUD_DOWNLOAD_URL")
     MESSAGE_PREFIX = os.getenv("MESSAGE_PREFIX")
-    MESSAGE_SUFFIX = os.getenv("MESSAGE_SUFFIX")
+    # check which day it is and set the MESSAGE_SUFFIX accordingly
+    today = datetime.datetime.today().weekday()
+    if today == 0:
+        MESSAGE_SUFFIX = os.getenv("MESSAGE_SUFFIX_MON")
+    elif today == 1:
+        MESSAGE_SUFFIX = os.getenv("MESSAGE_SUFFIX_TUE")
+    elif today == 2:
+        MESSAGE_SUFFIX = os.getenv("MESSAGE_SUFFIX_WED")
+    elif today == 3:
+        MESSAGE_SUFFIX = os.getenv("MESSAGE_SUFFIX_THU")
+    elif today == 4:
+        MESSAGE_SUFFIX = os.getenv("MESSAGE_SUFFIX_FRI")
+    elif today == 5:
+        MESSAGE_SUFFIX = os.getenv("MESSAGE_SUFFIX_SAT")
+    elif today == 6:
+        MESSAGE_SUFFIX = os.getenv("MESSAGE_SUFFIX_SUN")
+    else:
+        MESSAGE_SUFFIX = ""
+    
     MATTERMOST_USERNAME = os.getenv("MATTERMOST_USERNAME")
     SYSTEM_CONTENT = os.getenv("SYSTEM_CONTENT")
     DESCRIPTION_SUFFIX = os.getenv("DESCRIPTION_SUFFIX")
