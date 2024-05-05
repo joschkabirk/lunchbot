@@ -247,4 +247,14 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        logging.error(f"An error occurred: {str(e)}")
+        MATTERMOST_WEBHOOK_URL_ALERT = os.getenv("MATTERMOST_WEBHOOK_URL_ALERT")
+        ALERT_PREFIX = os.getenv("ALERT_PREFIX")
+        send_message_via_webhook(
+            webhook_url=MATTERMOST_WEBHOOK_URL_ALERT,
+            message=f"{ALERT_PREFIX}An error occurred: {str(e)}",
+            username="Lunchbot",
+        )
