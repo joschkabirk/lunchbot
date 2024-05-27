@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 
 import lunchbot.alsterfood_scraping as alsterfood_scraping
 import lunchbot.cfel_scraping as cfel_scraping
-from lunchbot.description_generation import get_food_description
+# from lunchbot.description_generation import get_food_description
 from lunchbot.image_generation import generate_hash, generate_image
 from lunchbot.mattermost_posting import send_message_via_webhook
 
@@ -175,25 +175,25 @@ def main():
         # ---
         # check if images/<hash>.txt exists, if yes, skip the description generation
         # and just read the description from the file
-        if os.path.isfile(f"images/{meal_hash}.txt"):
-            logger.info(f"Description already exists for meal '{dish_name}'")
-            with open(f"images/{meal_hash}.txt") as f:
-                description = f.read()
-        else:
-            logger.info(f"Generating description for meal '{dish_name}'")
+        # if os.path.isfile(f"images/{meal_hash}.txt"):
+        #     logger.info(f"Description already exists for meal '{dish_name}'")
+        #     with open(f"images/{meal_hash}.txt") as f:
+        #         description = f.read()
+        # else:
+        #     logger.info(f"Generating description for meal '{dish_name}'")
 
-            if description is None:
-                prompt_system_content = SYSTEM_CONTENT
-            else:
-                prompt_system_content = f"{SYSTEM_CONTENT} But please don't start the sentence with '{description[:50]}...'"
+        #     if description is None:
+        #         prompt_system_content = SYSTEM_CONTENT
+        #     else:
+        #         prompt_system_content = f"{SYSTEM_CONTENT} But please don't start the sentence with '{description[:50]}...'"
 
-            description = get_food_description(
-                meal_name=dish_name,
-                system_content=prompt_system_content,
-            )
-            with open(f"images/{meal_hash}.txt", "w") as f:
-                f.write(description)
-        dish["description"] = description
+        #     description = get_food_description(
+        #         meal_name=dish_name,
+        #         system_content=prompt_system_content,
+        #     )
+        #     with open(f"images/{meal_hash}.txt", "w") as f:
+        #         f.write(description)
+        # dish["description"] = description
 
     # -------------------------------------------------------------------------
     # Put the message together and send to Mattermost
@@ -201,8 +201,8 @@ def main():
 
     # Generate markdown table
     table_header = (
-        f"\n| Preview | Price | Info | Dish | Description {DESCRIPTION_SUFFIX}| "
-        "\n| --- | --- | --- | --- | --- |\n"
+        f"\n| Preview | Price | Info | Dish |" 
+        "\n| --- | --- | --- | --- |\n"
     )
     table_desy_canteen = f"**[DESY Canteen]({ALSTERFOOD_WEBSITE_URL})**\n" + table_header
     table_cfel_cafe = f"**[Cafe CFEL]({CFEL_WEBSITE_URL})**\n" + table_header
@@ -213,16 +213,16 @@ def main():
                 f"| ![preview]({dish['image_url']}) "
                 f"| {dish['price']} "
                 f"| {dish['info']} "
-                f"| **{dish['name']}**  "
-                f"| {dish['description']}| \n"
+                f"| **{dish['name']}** | \n"
+                # f"| {dish['description']}| \n"
             )
         elif dish["canteen"] == "Cafe CFEL":
             table_cfel_cafe += (
                 f"| ![preview]({dish['image_url']}) "
                 f"| {dish['price']} "
                 f"| {dish['info']} "
-                f"| **{dish['name']}**  "
-                f"| {dish['description']}| \n"
+                f"| **{dish['name']}**| \n"
+                # f"| {dish['description']}| \n"
             )
 
     message = (
