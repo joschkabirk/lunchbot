@@ -204,8 +204,8 @@ def main():
         f"\n| Preview | Price | Info | Dish | Description {DESCRIPTION_SUFFIX}| "
         "\n| --- | --- | --- | --- | --- |\n"
     )
-    table_desy_canteen = "**DESY Canteen**\n" + table_header
-    table_cfel_cafe = "**Cafe CFEL**\n" + table_header
+    table_desy_canteen = f"**[DESY Canteen]({ALSTERFOOD_WEBSITE_URL})**\n" + table_header
+    table_cfel_cafe = f"**[Cafe CFEL]({CFEL_WEBSITE_URL})**\n" + table_header
 
     for dish in list_of_dishes:
         if dish["canteen"] == "DESY Canteen":
