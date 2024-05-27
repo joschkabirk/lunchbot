@@ -200,37 +200,29 @@ def main():
     # ---
 
     # Generate markdown table
-    table_header = (
-        f"\n| Preview | Price | Info | Dish |" 
-        "\n| --- | --- | --- | --- |\n"
+    
+    # this table includes both DESY cantine and CFEL cafe menus
+    table_dish_columns_merged = (
+        "\n| " + " | ".join([dish["name"] for dish in list_of_dishes]) + " |\n"
+        + "|" + " --- |" * len([dish["name"] for dish in list_of_dishes]) + "\n"
+        # add the price
+        + "|" + " | ".join([dish["price"] for dish in list_of_dishes]) + " |\n"
+        # add the info
+        + "|" + " | ".join([dish["info"] for dish in list_of_dishes]) + " |\n"
+        # add which canteen
+        + "|" + " | ".join([dish["canteen"] for dish in list_of_dishes]) + " |\n"
+        # add the images
+        + "|" + " | ".join([f" ![preview]({dish['image_url']} =200)" for dish in list_of_dishes]) + " |\n"
     )
-    table_desy_canteen = f"**[DESY Canteen]({ALSTERFOOD_WEBSITE_URL})**\n" + table_header
-    table_cfel_cafe = f"**[Cafe CFEL]({CFEL_WEBSITE_URL})**\n" + table_header
-
-    for dish in list_of_dishes:
-        if dish["canteen"] == "DESY Canteen":
-            table_desy_canteen += (
-                f"| ![preview]({dish['image_url']}) "
-                f"| {dish['price']} "
-                f"| {dish['info']} "
-                f"| **{dish['name']}** | \n"
-                # f"| {dish['description']}| \n"
-            )
-        elif dish["canteen"] == "Cafe CFEL":
-            table_cfel_cafe += (
-                f"| ![preview]({dish['image_url']}) "
-                f"| {dish['price']} "
-                f"| {dish['info']} "
-                f"| **{dish['name']}**| \n"
-                # f"| {dish['description']}| \n"
-            )
+    
+    # add the links to the official menus
+    table_dish_columns_merged = table_dish_columns_merged.replace("DESY Canteen", f"**[DESY Canteen]({ALSTERFOOD_WEBSITE_URL})** :alsterfood:")
+    table_dish_columns_merged = table_dish_columns_merged.replace("Cafe CFEL", f"**[Cafe CFEL]({CFEL_WEBSITE_URL})** :cfel:")
 
     message = (
         MESSAGE_PREFIX
         + "\n"
-        + table_cfel_cafe
-        + "\n"
-        + table_desy_canteen
+        + table_dish_columns_merged + "\n\n"
         + "\n"
         + MESSAGE_SUFFIX
     )
