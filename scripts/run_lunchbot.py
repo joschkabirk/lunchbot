@@ -136,32 +136,28 @@ def main():
 
         # --------------------------------------------------------------------
         # Generate the image for the meal
-        if os.path.isfile(f"images/{meal_hash}.png"):
-            # if the image already exists in images/, skip the download
-            logger.info(f"Image already exists for meal '{dish_name}'")
-        else:
-            try:
-                # generate image using huggingface
-                generate_image_huggingface(
-                    prompt=dish_name,
-                    api_url=HUGGINGFACE_API_URL,
-                    api_token=HUGGINGFACE_API_TOKEN,
-                    save_path=f"images/{meal_hash}.png",
-                )
-            except Exception as e:
-                # if an error occurs, try to generate the image with OpenAI API
-                logger.error(f"An error occurred while generating image: {e}")
-                logger.info("Trying to generate image with OpenAI API")
-                generated_image_url = generate_image(prompt=dish_name)
-                # log the URL of the generated image
-                logger.info(f"Generated Image URL: {generated_image_url}")
+        try:
+            # generate image using huggingface
+            generate_image_huggingface(
+                prompt=dish_name,
+                api_url=HUGGINGFACE_API_URL,
+                api_token=HUGGINGFACE_API_TOKEN,
+                save_path=f"images/{meal_hash}.png",
+            )
+        except Exception as e:
+            # if an error occurs, try to generate the image with OpenAI API
+            logger.error(f"An error occurred while generating image: {e}")
+            logger.info("Trying to generate image with OpenAI API")
+            generated_image_url = generate_image(prompt=dish_name)
+            # log the URL of the generated image
+            logger.info(f"Generated Image URL: {generated_image_url}")
 
-                # download the image from the openAI url and save in images/image_hash.png
-                # (openAI urls are only valid for one hour)
-                # command = f"curl --output images/asdf{i}.png {image_url}"
-                request.urlretrieve(
-                    generated_image_url, f"images/{meal_hash}.png"
-                )  # nosec
+            # download the image from the openAI url and save in images/image_hash.png
+            # (openAI urls are only valid for one hour)
+            # command = f"curl --output images/asdf{i}.png {image_url}"
+            request.urlretrieve(
+                generated_image_url, f"images/{meal_hash}.png"
+            )  # nosec
 
             # upload the image to the cloud (where it will be available for unlimited
             # time / until we delete it, but we don't have to worry about the
