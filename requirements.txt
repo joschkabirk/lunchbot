@@ -6,6 +6,7 @@ datetime
 flask
 flask_session
 openai
+pillow
 pre-commit
 python-dotenv
 requests
