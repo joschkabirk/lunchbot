@@ -1,5 +1,5 @@
-import logging
 import datetime
+import logging
 import os
 from subprocess import run  # nosec
 from urllib import request  # nosec
@@ -8,8 +8,11 @@ from dotenv import load_dotenv
 
 import lunchbot.alsterfood_scraping as alsterfood_scraping
 import lunchbot.cfel_scraping as cfel_scraping
-# from lunchbot.description_generation import get_food_description
-from lunchbot.image_generation import generate_hash, generate_image
+from lunchbot.image_generation import (
+    generate_hash,
+    generate_image,
+    generate_image_huggingface,
+)
 from lunchbot.mattermost_posting import send_message_via_webhook
 
 
@@ -30,6 +33,8 @@ def main():
     IMAGE_CLOUD_UPLOAD_TOKEN = os.getenv("IMAGE_CLOUD_UPLOAD_TOKEN")
     IMAGE_CLOUD_DOWNLOAD_URL = os.getenv("IMAGE_CLOUD_DOWNLOAD_URL")
     MESSAGE_PREFIX = os.getenv("MESSAGE_PREFIX")
+    HUGGINGFACE_API_URL = os.getenv("HUGGINGFACE_API_URL")
+    HUGGINGFACE_API_TOKEN = os.getenv("HUGGINGFACE_API_TOKEN")
     # check which day it is and set the MESSAGE_SUFFIX accordingly
     today = datetime.datetime.today().weekday()
     if today == 0:
@@ -48,7 +53,7 @@ def main():
         MESSAGE_SUFFIX = os.getenv("MESSAGE_SUFFIX_SUN")
     else:
         MESSAGE_SUFFIX = ""
-    
+
     MATTERMOST_USERNAME = os.getenv("MATTERMOST_USERNAME")
     SYSTEM_CONTENT = os.getenv("SYSTEM_CONTENT")
     DESCRIPTION_SUFFIX = os.getenv("DESCRIPTION_SUFFIX")
@@ -119,7 +124,7 @@ def main():
     logger.info(50 * "-")
     logger.info("Generating images for the meals...")
 
-    description = None
+    # description = None
 
     for dish in list_of_dishes:
         dish_name = dish["name"]
@@ -131,18 +136,22 @@ def main():
 
         # --------------------------------------------------------------------
         # Generate the image for the meal
-        if USE_OPENAI_IMAGE_URL == "true":
-            logger.warning("Using OpenAI image URL (will expire after 1 hour)")
-            # Generate an image with DALL-E based on the menu entries
-            generated_image_url = generate_image(prompt=dish_name)
-            dish["image_url"] = generated_image_url
-
+        if os.path.isfile(f"images/{meal_hash}.png"):
+            # if the image already exists in images/, skip the download
+            logger.info(f"Image already exists for meal '{dish_name}'")
         else:
-            if os.path.isfile(f"images/{meal_hash}.png"):
-                # if the image already exists in images/, skip the download
-                logger.info(f"Image already exists for meal '{dish_name}'")
-            else:
-                # Generate an image with DALL-E based on the menu entries
+            try:
+                # generate image using huggingface
+                generate_image_huggingface(
+                    prompt=dish_name,
+                    api_url=HUGGINGFACE_API_URL,
+                    api_token=HUGGINGFACE_API_TOKEN,
+                    save_path=f"images/{meal_hash}.png",
+                )
+            except Exception as e:
+                # if an error occurs, try to generate the image with OpenAI API
+                logger.error(f"An error occurred while generating image: {e}")
+                logger.info("Trying to generate image with OpenAI API")
                 generated_image_url = generate_image(prompt=dish_name)
                 # log the URL of the generated image
                 logger.info(f"Generated Image URL: {generated_image_url}")
@@ -200,8 +209,9 @@ def main():
     # ---
 
     # Generate markdown table
-    
+
     # this table includes both DESY cantine and CFEL cafe menus
+    # fmt: off
     table_dish_columns_merged = (
         "\n| " + " | ".join([dish["name"] for dish in list_of_dishes]) + " |\n"
         + "|" + " --- |" * len([dish["name"] for dish in list_of_dishes]) + "\n"
@@ -214,15 +224,21 @@ def main():
         # add the images
         + "|" + " | ".join([f" ![preview]({dish['image_url']} =200)" for dish in list_of_dishes]) + " |\n"
     )
-    
+    # fmt: on
+
     # add the links to the official menus
-    table_dish_columns_merged = table_dish_columns_merged.replace("DESY Canteen", f"**[DESY Canteen]({ALSTERFOOD_WEBSITE_URL})** :alsterfood:")
-    table_dish_columns_merged = table_dish_columns_merged.replace("Cafe CFEL", f"**[Cafe CFEL]({CFEL_WEBSITE_URL})** :cfel:")
+    table_dish_columns_merged = table_dish_columns_merged.replace(
+        "DESY Canteen", f"**[DESY Canteen]({ALSTERFOOD_WEBSITE_URL})** :alsterfood:"
+    )
+    table_dish_columns_merged = table_dish_columns_merged.replace(
+        "Cafe CFEL", f"**[Cafe CFEL]({CFEL_WEBSITE_URL})** :cfel:"
+    )
 
     message = (
         MESSAGE_PREFIX
         + "\n"
-        + table_dish_columns_merged + "\n\n"
+        + table_dish_columns_merged
+        + "\n\n"
         + "\n"
         + MESSAGE_SUFFIX
     )
@@ -242,11 +258,11 @@ if __name__ == "__main__":
     try:
         main()
     except Exception as e:
-        logging.error(f"An error occurred: {str(e)}")
+        logging.error(f"An error occurred: {e}")
         MATTERMOST_WEBHOOK_URL_ALERT = os.getenv("MATTERMOST_WEBHOOK_URL_ALERT")
         ALERT_PREFIX = os.getenv("ALERT_PREFIX")
         send_message_via_webhook(
             webhook_url=MATTERMOST_WEBHOOK_URL_ALERT,
-            message=f"{ALERT_PREFIX}An error occurred: {str(e)}",
+            message=f"{ALERT_PREFIX}An error occurred: {e}",
             username="Lunchbot",
         )
