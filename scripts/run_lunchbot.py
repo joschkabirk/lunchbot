@@ -159,21 +159,21 @@ def main():
                 generated_image_url, f"images/{meal_hash}.png"
             )  # nosec
 
-            # upload the image to the cloud (where it will be available for unlimited
-            # time / until we delete it, but we don't have to worry about the
-            # image expiring after a short time)
-            upload_command = [
-                "curl",
-                "-u",
-                f"'{IMAGE_CLOUD_UPLOAD_TOKEN}'",
-                "-T",
-                f"images/{meal_hash}.png",
-                f"{IMAGE_CLOUD_UPLOAD_URL}{meal_hash}.png",
-            ]
-            upload_command = " ".join(upload_command)
-            run(upload_command, shell=True)  # nosec
+        # upload the image to the cloud (where it will be available for unlimited
+        # time / until we delete it, but we don't have to worry about the
+        # image expiring after a short time)
+        upload_command = [
+            "curl",
+            "-u",
+            f"'{IMAGE_CLOUD_UPLOAD_TOKEN}'",
+            "-T",
+            f"images/{meal_hash}.png",
+            f"{IMAGE_CLOUD_UPLOAD_URL}{meal_hash}.png",
+        ]
+        upload_command = " ".join(upload_command)
+        run(upload_command, shell=True)  # nosec
 
-            dish["image_url"] = f"{IMAGE_CLOUD_DOWNLOAD_URL}{meal_hash}.png"
+        dish["image_url"] = f"{IMAGE_CLOUD_DOWNLOAD_URL}{meal_hash}.png"
 
         # -------------------------------------------------------------------------
         # Generate the description
