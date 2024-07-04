@@ -4,6 +4,8 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
 
+from lunchbot.utils import translate_german_food_description_to_english
+
 logger = logging.getLogger(__name__)
 
 
@@ -92,6 +94,9 @@ def fetch_todays_lunch_menu(url: str):
                 dish_info = "vegetarian"
             else:
                 dish_info = ""
+
+            # Translate the dish description to English
+            dish_name = translate_german_food_description_to_english(dish_name)
 
             dishes_list.append(
                 {
