@@ -189,9 +189,7 @@ def main():
         # add which canteen
         + "|" + " | ".join([dish["canteen"] for dish in list_of_dishes]) + " |\n"
         # add the images
-        + "|" + " | ".join([f" ![preview]({dish['image_url']} =200)" for dish in list_of_dishes]) + " |\n"
-        # add the generation info
-        + "|" + " | ".join([dish["generation_info_tag"] for dish in list_of_dishes]) + " |\n"
+        + "|" + " | ".join([f" ![preview {dish['generation_info_tag']}]({dish['image_url']} =200)" for dish in list_of_dishes]) + " |\n"
     )
     # fmt: on
 
