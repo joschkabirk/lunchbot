@@ -119,33 +119,30 @@ def main():
         logger.info(f"  {i+1})  {dish_name}")
 
     # -------------------------------------------------------------------------
-    # Generate images and descriptions for the meals
+    # Generate an image for each meal
     # ---
     logger.info(50 * "-")
     logger.info("Generating images for the meals...")
 
-    # description = None
-
     for dish in list_of_dishes:
         dish_name = dish["name"]
-        # generate a unique hash for the image
-        meal_hash = generate_hash(dish_name)
+        meal_hash = generate_hash(dish_name)  # generate a unique hash for the image
 
         logger.debug(f"Meal: {dish_name}")
         logger.debug(f"Hash: {meal_hash}")
 
-        # --------------------------------------------------------------------
-        # Generate the image for the meal
         try:
-            # generate image using huggingface
+            # try generating image using huggingface
             generate_image_huggingface(
                 prompt=dish_name,
                 api_url=HUGGINGFACE_API_URL,
                 api_token=HUGGINGFACE_API_TOKEN,
                 save_path=f"images/{meal_hash}.png",
             )
+            dish["generation_info_tag"] = "Generated with Huggingface API"
         except Exception as e:
-            # if an error occurs, try to generate the image with OpenAI API
+            # if an error occurs, use the OpenAI API to generate the image
+            # (for some reason Huggingface API sometimes fails to generate images)
             logger.error(f"An error occurred while generating image: {e}")
             logger.info("Trying to generate image with OpenAI API")
             generated_image_url = generate_image(prompt=dish_name)
@@ -153,15 +150,16 @@ def main():
             logger.info(f"Generated Image URL: {generated_image_url}")
 
             # download the image from the openAI url and save in images/image_hash.png
-            # (openAI urls are only valid for one hour)
+            # (openAI urls are only valid for one hour, then they expire)
             # command = f"curl --output images/asdf{i}.png {image_url}"
             request.urlretrieve(
                 generated_image_url, f"images/{meal_hash}.png"
             )  # nosec
+            dish["generation_info_tag"] = "Generated with OpenAI API"
 
         # upload the image to the cloud (where it will be available for unlimited
-        # time / until we delete it, but we don't have to worry about the
-        # image expiring after a short time)
+        # time / until we delete it, so we don't have to worry about the
+        # image link expiring after a short time)
         upload_command = [
             "curl",
             "-u",
@@ -175,36 +173,9 @@ def main():
 
         dish["image_url"] = f"{IMAGE_CLOUD_DOWNLOAD_URL}{meal_hash}.png"
 
-        # -------------------------------------------------------------------------
-        # Generate the description
-        # ---
-        # check if images/<hash>.txt exists, if yes, skip the description generation
-        # and just read the description from the file
-        # if os.path.isfile(f"images/{meal_hash}.txt"):
-        #     logger.info(f"Description already exists for meal '{dish_name}'")
-        #     with open(f"images/{meal_hash}.txt") as f:
-        #         description = f.read()
-        # else:
-        #     logger.info(f"Generating description for meal '{dish_name}'")
-
-        #     if description is None:
-        #         prompt_system_content = SYSTEM_CONTENT
-        #     else:
-        #         prompt_system_content = f"{SYSTEM_CONTENT} But please don't start the sentence with '{description[:50]}...'"
-
-        #     description = get_food_description(
-        #         meal_name=dish_name,
-        #         system_content=prompt_system_content,
-        #     )
-        #     with open(f"images/{meal_hash}.txt", "w") as f:
-        #         f.write(description)
-        # dish["description"] = description
-
     # -------------------------------------------------------------------------
     # Put the message together and send to Mattermost
     # ---
-
-    # Generate markdown table
 
     # this table includes both DESY cantine and CFEL cafe menus
     # fmt: off
@@ -219,10 +190,12 @@ def main():
         + "|" + " | ".join([dish["canteen"] for dish in list_of_dishes]) + " |\n"
         # add the images
         + "|" + " | ".join([f" ![preview]({dish['image_url']} =200)" for dish in list_of_dishes]) + " |\n"
+        # add the generation info
+        + "|" + " | ".join([dish["generation_info_tag"] for dish in list_of_dishes]) + " |\n"
     )
     # fmt: on
 
-    # add the links to the official menus
+    # add hyperlinks pointing to the official menus (where the information was scraped from)
     table_dish_columns_merged = table_dish_columns_merged.replace(
         "DESY Canteen", f"**[DESY Canteen]({ALSTERFOOD_WEBSITE_URL})** :alsterfood:"
     )
@@ -230,6 +203,7 @@ def main():
         "Cafe CFEL", f"**[Cafe CFEL]({CFEL_WEBSITE_URL})** :cfel:"
     )
 
+    # add prefix and suffix to the message
     message = (
         MESSAGE_PREFIX
         + "\n"
