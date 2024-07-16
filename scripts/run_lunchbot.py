@@ -216,11 +216,22 @@ def main():
     logger.info("Posting the following message on Mattermost:")
     logger.info(message)
 
-    send_message_via_webhook(
-        webhook_url=MATTERMOST_WEBHOOK_URL,
-        message=message,
-        username=MATTERMOST_USERNAME,
-    )
+    n_attempts = 10
+
+    for n in range(n_attempts):
+        try:
+            send_message_via_webhook(
+                webhook_url=MATTERMOST_WEBHOOK_URL,
+                message=message,
+                username=MATTERMOST_USERNAME,
+            )
+            break
+        except Exception as e:
+            logger.error(f"An error occurred while posting message: {e}")
+            if n < n_attempts - 1:
+                logger.info(f"Retrying... (attempt {n+2}/{n_attempts})")
+            else:
+                raise e
     logger.info("Message posted successfully!")
 
 
