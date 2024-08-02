@@ -51,7 +51,7 @@ def generate_hash(input_string: str):
     return hashlib.sha256(input_string.encode()).hexdigest()[:20]
 
 
-def generate_image(
+def generate_image_openai(
     prompt,
     model="dall-e-2",
     size="256x256",
@@ -71,6 +71,8 @@ def generate_image(
         The quality of the generated image. Defaults to "standard".
     """
     client = OpenAI()
+
+    logger.info(f"Generating image (with OpenAI-API) with prompt: {prompt}")
 
     try:
         response = client.images.generate(

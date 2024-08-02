@@ -10,7 +10,7 @@ import lunchbot.alsterfood_scraping as alsterfood_scraping
 import lunchbot.cfel_scraping as cfel_scraping
 from lunchbot.image_generation import (
     generate_hash,
-    generate_image,
+    generate_image_openai,
     generate_image_huggingface,
 )
 from lunchbot.mattermost_posting import send_message_via_webhook
@@ -35,6 +35,11 @@ def main():
     MESSAGE_PREFIX = os.getenv("MESSAGE_PREFIX")
     HUGGINGFACE_API_URL = os.getenv("HUGGINGFACE_API_URL")
     HUGGINGFACE_API_TOKEN = os.getenv("HUGGINGFACE_API_TOKEN")
+    API_TO_USE = os.getenv("API_TO_USE").lower() # huggingface or openai
+
+    if API_TO_USE!="huggingface" and API_TO_USE!="openai":
+        raise ValueError("API_TO_USE must be either 'huggingface' or 'openai'")
+
     # check which day it is and set the MESSAGE_SUFFIX accordingly
     today = datetime.datetime.today().weekday()
     if today == 0:
@@ -131,21 +136,9 @@ def main():
         logger.debug(f"Meal: {dish_name}")
         logger.debug(f"Hash: {meal_hash}")
 
-        try:
-            # try generating image using huggingface
-            generate_image_huggingface(
-                prompt=dish_name,
-                api_url=HUGGINGFACE_API_URL,
-                api_token=HUGGINGFACE_API_TOKEN,
-                save_path=f"images/{meal_hash}.png",
-            )
-            dish["generation_info_tag"] = "Generated with Huggingface API"
-        except Exception as e:
-            # if an error occurs, use the OpenAI API to generate the image
-            # (for some reason Huggingface API sometimes fails to generate images)
-            logger.error(f"An error occurred while generating image: {e}")
-            logger.info("Trying to generate image with OpenAI API")
-            generated_image_url = generate_image(prompt=dish_name)
+        if API_TO_USE == "openai":
+            # generate the image using the OpenAI API
+            generated_image_url = generate_image_openai(prompt=dish_name)
             # log the URL of the generated image
             logger.info(f"Generated Image URL: {generated_image_url}")
 
@@ -154,8 +147,37 @@ def main():
             # command = f"curl --output images/asdf{i}.png {image_url}"
             request.urlretrieve(
                 generated_image_url, f"images/{meal_hash}.png"
-            )  # nosec
+            )
             dish["generation_info_tag"] = "Generated with OpenAI API"
+        elif API_TO_USE == "huggingface":
+            try:
+                # try generating image using huggingface
+                generate_image_huggingface(
+                    prompt=dish_name,
+                    api_url=HUGGINGFACE_API_URL,
+                    api_token=HUGGINGFACE_API_TOKEN,
+                    save_path=f"images/{meal_hash}.png",
+                )
+                dish["generation_info_tag"] = "Generated with Huggingface API"
+            except Exception as e:
+                # if an error occurs, use the OpenAI API to generate the image
+                # (for some reason Huggingface API sometimes fails to generate images)
+                logger.error(f"An error occurred while generating image: {e}")
+                logger.info("Trying to generate image with OpenAI API")
+                generated_image_url = generate_image_openai(prompt=dish_name)
+                # log the URL of the generated image
+                logger.info(f"Generated Image URL: {generated_image_url}")
+
+                # download the image from the openAI url and save in images/image_hash.png
+                # (openAI urls are only valid for one hour, then they expire)
+                # command = f"curl --output images/asdf{i}.png {image_url}"
+                request.urlretrieve(
+                    generated_image_url, f"images/{meal_hash}.png"
+                )  # nosec
+                dish["generation_info_tag"] = "Generated with OpenAI API"
+            else:
+                # this error should be raised already, but just in case
+                raise ValueError("API_TO_USE must be either 'huggingface' or 'openai'")
 
         # upload the image to the cloud (where it will be available for unlimited
         # time / until we delete it, so we don't have to worry about the
