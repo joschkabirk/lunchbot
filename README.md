@@ -25,11 +25,14 @@ The image is available on [Docker Hub at `jobirk/lunchbot`](https://hub.docker.c
 Furthermore, you have to set the following environment variables in a `.env` file:
 
 ```shell
+API_TO_USE="openai" # options are "openai" and "huggingface"
+HUGGINGFACE_API_URL="<your Hugging Face API URL>"
+HUGGINGFACE_API_TOKEN="<your Hugging Face API token>"
 ALSTERFOOD_WEBSITE_URL="https://desy.myalsterfood.de/"
 OPENAI_API_KEY="<your OpenAI API key>"
 MATTERMOST_WEBHOOK_URL="<your Mattermost webhook URL>"
 MATTERMOST_WEBHOOK_URL_ALERT="<your Mattermost webhook URL for alert messages>"
-USE_OPENAI_IMAGES_URL="<if set to 'true', the bot will use the OpenAI image API to generate images (which expire after 1 hour)>"
+USE_OPENAI_IMAGE_URL="<if set to 'true', the bot will use the OpenAI image API to generate images (which expire after 1 hour)>"
 IMAGE_CLOUD_UPLOAD_URL="<your image cloud upload URL>"
 IMAGE_CLOUD_UPLOAD_TOKEN="<your image cloud upload token>"
 IMAGE_CLOUD_DOWNLOAD_URL="<your image cloud download URL>"
