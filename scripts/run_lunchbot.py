@@ -11,7 +11,7 @@ import lunchbot.alsterfood_scraping as alsterfood_scraping
 import lunchbot.cfel_scraping as cfel_scraping
 from lunchbot.image_generation import generate_image_openai, generate_image_huggingface
 from lunchbot.mattermost_posting import send_message_via_webhook
-
+from lunchbot.utils import color_text
 
 def main():
     logging.basicConfig(
@@ -139,7 +139,9 @@ def main():
         # and just use the existing image
         if requests.get(dish["image_url"]).status_code == 200:
             logger.info(
-                f"Image with hash {meal_hash} for '{dish_name}' already exists. Skipping image generation."
+                f"Image with hash {color_text(meal_hash, 'yellow')} for "
+                f"'{color_text(dish_name, 'yellow')}' already exists. "
+                "Skipping image generation."
             )
             dish["generation_info_tag"] = "Already generated"
             continue
@@ -243,7 +245,7 @@ def main():
     )
 
     logger.info("Posting the following message on Mattermost:")
-    logger.info(message)
+    logger.info(color_text(message, 'green'))
 
     n_attempts = 10
 

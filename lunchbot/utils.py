@@ -7,6 +7,18 @@ import hashlib
 
 logger = logging.getLogger(__name__)
 
+COLORS = {
+    "yellow": "\033[93m",
+    "green": "\033[92m",
+    "red": "\033[91m",
+    "end": "\033[0m",
+}
+
+
+def color_text(text: str, color: str):
+    """Color text for terminal output."""
+    return COLORS[color] + text + COLORS["end"]
+
 
 def translate_german_food_description_to_english(
     meal_name: str,
