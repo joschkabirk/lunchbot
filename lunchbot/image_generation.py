@@ -1,6 +1,5 @@
 """Image generation stuff."""
 
-import hashlib
 import io
 import logging
 
@@ -44,11 +43,6 @@ def generate_image_huggingface(
     image = Image.open(io.BytesIO(image_bytes))
     logger.info(f"Image generated successfully. Saving to {save_path}.")
     image.save(save_path)
-
-
-def generate_hash(input_string: str):
-    """Get the first 20 characters of the SHA256 hash of a string."""
-    return hashlib.sha256(input_string.encode()).hexdigest()[:20]
 
 
 def generate_image_openai(

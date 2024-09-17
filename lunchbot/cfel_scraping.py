@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
 
-from lunchbot.utils import translate_german_food_description_to_english
+from lunchbot.utils import translate_german_food_description_to_english, generate_hash
 
 logger = logging.getLogger(__name__)
 
@@ -96,14 +96,15 @@ def fetch_todays_lunch_menu(url: str):
                 dish_info = ""
 
             # Translate the dish description to English
-            dish_name = translate_german_food_description_to_english(dish_name)
+            dish_name_translated = translate_german_food_description_to_english(dish_name)
 
             dishes_list.append(
                 {
-                    "name": dish_name,
+                    "name": dish_name_translated,
                     "info": dish_info,
                     "price": dish_price,
                     "canteen": "Cafe CFEL",
+                    "hash": generate_hash(dish_name),
                 }
             )
 
