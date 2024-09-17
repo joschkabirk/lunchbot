@@ -8,6 +8,7 @@ from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+from lunchbot.utils import generate_hash
 
 logger = logging.getLogger(__name__)
 
@@ -140,6 +141,7 @@ def fetch_todays_lunch_menu(url: str):
                     "info": dish_info,
                     "price": dish_price,
                     "canteen": "DESY Canteen",
+                    "hash": generate_hash(dish_name),
                 }
             )
 

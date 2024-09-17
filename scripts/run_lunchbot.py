@@ -1,4 +1,5 @@
 import datetime
+import requests
 import logging
 import os
 from subprocess import run  # nosec
@@ -8,13 +9,9 @@ from dotenv import load_dotenv
 
 import lunchbot.alsterfood_scraping as alsterfood_scraping
 import lunchbot.cfel_scraping as cfel_scraping
-from lunchbot.image_generation import (
-    generate_hash,
-    generate_image_openai,
-    generate_image_huggingface,
-)
+from lunchbot.image_generation import generate_image_openai, generate_image_huggingface
 from lunchbot.mattermost_posting import send_message_via_webhook
-
+from lunchbot.utils import color_text
 
 def main():
     logging.basicConfig(
@@ -35,9 +32,9 @@ def main():
     MESSAGE_PREFIX = os.getenv("MESSAGE_PREFIX")
     HUGGINGFACE_API_URL = os.getenv("HUGGINGFACE_API_URL")
     HUGGINGFACE_API_TOKEN = os.getenv("HUGGINGFACE_API_TOKEN")
-    API_TO_USE = os.getenv("API_TO_USE").lower() # huggingface or openai
+    API_TO_USE = os.getenv("API_TO_USE").lower()  # huggingface or openai
 
-    if API_TO_USE!="huggingface" and API_TO_USE!="openai":
+    if API_TO_USE != "huggingface" and API_TO_USE != "openai":
         raise ValueError("API_TO_USE must be either 'huggingface' or 'openai'")
 
     # check which day it is and set the MESSAGE_SUFFIX accordingly
@@ -131,10 +128,24 @@ def main():
 
     for dish in list_of_dishes:
         dish_name = dish["name"]
-        meal_hash = generate_hash(dish_name)  # generate a unique hash for the image
+        meal_hash = dish["hash"]
 
         logger.debug(f"Meal: {dish_name}")
         logger.debug(f"Hash: {meal_hash}")
+
+        dish["image_url"] = f"{IMAGE_CLOUD_DOWNLOAD_URL}{meal_hash}.png"
+
+        # check if image already exists - if it does, skip image generation
+        # and just use the existing image
+        if requests.get(dish["image_url"]).status_code == 200:
+            logger.info(
+                f"Image with hash {color_text(meal_hash, 'yellow')} for "
+                f"'{color_text(dish_name, 'yellow')}' already exists. "
+                "Skipping image generation."
+            )
+            dish["generation_info_tag"] = "Already generated"
+            continue
+        logger.info(f"Generating image with hash {meal_hash} for '{dish_name}'")
 
         if API_TO_USE == "openai":
             # generate the image using the OpenAI API
@@ -145,9 +156,7 @@ def main():
             # download the image from the openAI url and save in images/image_hash.png
             # (openAI urls are only valid for one hour, then they expire)
             # command = f"curl --output images/asdf{i}.png {image_url}"
-            request.urlretrieve(
-                generated_image_url, f"images/{meal_hash}.png"
-            )
+            request.urlretrieve(generated_image_url, f"images/{meal_hash}.png")
             dish["generation_info_tag"] = "Generated with OpenAI API"
         elif API_TO_USE == "huggingface":
             try:
@@ -171,17 +180,15 @@ def main():
                 # download the image from the openAI url and save in images/image_hash.png
                 # (openAI urls are only valid for one hour, then they expire)
                 # command = f"curl --output images/asdf{i}.png {image_url}"
-                request.urlretrieve(
-                    generated_image_url, f"images/{meal_hash}.png"
-                )  # nosec
+                request.urlretrieve(generated_image_url, f"images/{meal_hash}.png")  # nosec
                 dish["generation_info_tag"] = "Generated with OpenAI API"
             else:
                 # this error should be raised already, but just in case
                 raise ValueError("API_TO_USE must be either 'huggingface' or 'openai'")
 
-        # upload the image to the cloud (where it will be available for unlimited
-        # time / until we delete it, so we don't have to worry about the
-        # image link expiring after a short time)
+        # --- upload the image to the cloud ---
+        # the image will be available for unlimited time / until we delete it in the
+        # cloud, so we don't have to worry about the image link expiring after some time)
         upload_command = [
             "curl",
             "-u",
@@ -190,10 +197,13 @@ def main():
             f"images/{meal_hash}.png",
             f"{IMAGE_CLOUD_UPLOAD_URL}{meal_hash}.png",
         ]
-        upload_command = " ".join(upload_command)
-        run(upload_command, shell=True)  # nosec
+        run(" ".join(upload_command), shell=True)  # nosec
 
-        dish["image_url"] = f"{IMAGE_CLOUD_DOWNLOAD_URL}{meal_hash}.png"
+        # check if the image was uploaded successfully
+        if requests.get(dish["image_url"]).status_code == 200:
+            logger.info(f"Image uploaded successfully to {dish['image_url']}")
+        else:
+            raise ValueError(f"Image upload failed for {dish['image_url']}")
 
     # -------------------------------------------------------------------------
     # Put the message together and send to Mattermost
@@ -211,7 +221,8 @@ def main():
         # add which canteen
         + "|" + " | ".join([dish["canteen"] for dish in list_of_dishes]) + " |\n"
         # add the images
-        + "|" + " | ".join([f" ![preview {dish['generation_info_tag']}]({dish['image_url']} =200)" for dish in list_of_dishes]) + " |\n"
+        + "|" + " | ".join([f" ![preview {dish['generation_info_tag']}]({dish['image_url']} =200)" 
+                            for dish in list_of_dishes]) + " |\n"
     )
     # fmt: on
 
@@ -234,7 +245,7 @@ def main():
     )
 
     logger.info("Posting the following message on Mattermost:")
-    logger.info(message)
+    logger.info(color_text(message, 'green'))
 
     n_attempts = 10
 
