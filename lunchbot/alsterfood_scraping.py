@@ -50,7 +50,7 @@ def fetch_todays_lunch_menu(url: str):
 
         # Wait for up to 10 seconds for an element with ID 'target_element_id' to be present
         logger.info("Waiting for page to be ready...")
-        wait = WebDriverWait(driver, 20)
+        wait = WebDriverWait(driver, 30)
         wait.until(EC.presence_of_element_located((By.ID, "openings")))
         logger.info("Page is ready!")
 

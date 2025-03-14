@@ -212,7 +212,7 @@ def main():
     # this table includes both DESY cantine and CFEL cafe menus
     # fmt: off
     table_dish_columns_merged = (
-        "\n| " + " | ".join([dish["name"] for dish in list_of_dishes]) + " |\n"
+        "\n| " + " | ".join([dish["name"].replace("|", "-") for dish in list_of_dishes]) + " |\n"
         + "|" + " --- |" * len([dish["name"] for dish in list_of_dishes]) + "\n"
         # add the price
         + "|" + " | ".join([dish["price"] for dish in list_of_dishes]) + " |\n"
