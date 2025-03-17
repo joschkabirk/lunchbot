@@ -47,7 +47,7 @@ DESCRIPTION_SUFFIX="<suffix to put after "Description" in the table header>"
 ALERT_PREFIX="<prefix for the alert message>"
 ```
 
-If you need different massages in even and odd weeks, you can set the following environment variables:
+If you need different messages in even and odd weeks, you can set the following environment variables:
 
 ```shell
 MESSAGE_SUFFIX_MON_EVEN="<your message suffix for mondays in even weeks>"
