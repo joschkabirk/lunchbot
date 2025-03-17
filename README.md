@@ -47,6 +47,18 @@ DESCRIPTION_SUFFIX="<suffix to put after "Description" in the table header>"
 ALERT_PREFIX="<prefix for the alert message>"
 ```
 
+If you need different messages in even and odd weeks, you can set the following environment variables:
+
+```shell
+MESSAGE_SUFFIX_MON_EVEN="<your message suffix for mondays in even weeks>"
+MESSAGE_SUFFIX_TUE_EVEN="<your message suffix for tuesdays in even weeks>"
+...
+MESSAGE_SUFFIX_SUN_EVEN="<your message suffix for sundays in even weeks>"
+MESSAGE_SUFFIX_MON_ODD="<your message suffix for mondays in odd weeks>"
+...
+MESSAGE_SUFFIX_SUN_ODD="<your message suffix for sundays in odd weeks>"
+```
+
 ### Run the bot
 
 Inside the container (and repo), just run:

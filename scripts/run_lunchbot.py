@@ -39,20 +39,49 @@ def main():
 
     # check which day it is and set the MESSAGE_SUFFIX accordingly
     today = datetime.datetime.today().weekday()
+    even = datetime.datetime.today().isocalendar()[1] % 2
     if today == 0:
         MESSAGE_SUFFIX = os.getenv("MESSAGE_SUFFIX_MON")
+        if even == 0 and os.getenv("MESSAGE_SUFFIX_MON_EVEN") is not None:
+            MESSAGE_SUFFIX = os.getenv("MESSAGE_SUFFIX_MON_EVEN")
+        elif even == 1 and os.getenv("MESSAGE_SUFFIX_MON_ODD") is not None:
+            MESSAGE_SUFFIX = os.getenv("MESSAGE_SUFFIX_MON_ODD")
     elif today == 1:
         MESSAGE_SUFFIX = os.getenv("MESSAGE_SUFFIX_TUE")
+        if even == 0 and os.getenv("MESSAGE_SUFFIX_TUE_EVEN") is not None:
+            MESSAGE_SUFFIX = os.getenv("MESSAGE_SUFFIX_TUE_EVEN")
+        elif even == 1 and os.getenv("MESSAGE_SUFFIX_TUE_ODD") is not None:
+            MESSAGE_SUFFIX = os.getenv("MESSAGE_SUFFIX_TUE_ODD")
     elif today == 2:
         MESSAGE_SUFFIX = os.getenv("MESSAGE_SUFFIX_WED")
+        if even == 0 and os.getenv("MESSAGE_SUFFIX_WED_EVEN") is not None:
+            MESSAGE_SUFFIX = os.getenv("MESSAGE_SUFFIX_WED_EVEN")
+        elif even == 1 and os.getenv("MESSAGE_SUFFIX_WED_ODD") is not None:
+            MESSAGE_SUFFIX = os.getenv("MESSAGE_SUFFIX_WED_ODD")
     elif today == 3:
         MESSAGE_SUFFIX = os.getenv("MESSAGE_SUFFIX_THU")
+        if even == 0 and os.getenv("MESSAGE_SUFFIX_THU_EVEN") is not None:
+            MESSAGE_SUFFIX = os.getenv("MESSAGE_SUFFIX_THU_EVEN")
+        elif even == 1 and os.getenv("MESSAGE_SUFFIX_THU_ODD") is not None:
+            MESSAGE_SUFFIX = os.getenv("MESSAGE_SUFFIX_THU_ODD")
     elif today == 4:
         MESSAGE_SUFFIX = os.getenv("MESSAGE_SUFFIX_FRI")
+        if even == 0 and os.getenv("MESSAGE_SUFFIX_FRI_EVEN") is not None:
+            MESSAGE_SUFFIX = os.getenv("MESSAGE_SUFFIX_FRI_EVEN")
+        elif even == 1 and os.getenv("MESSAGE_SUFFIX_FRI_ODD") is not None:
+            MESSAGE_SUFFIX = os.getenv("MESSAGE_SUFFIX_FRI_ODD")
     elif today == 5:
         MESSAGE_SUFFIX = os.getenv("MESSAGE_SUFFIX_SAT")
+        if even == 0 and os.getenv("MESSAGE_SUFFIX_SAT_EVEN") is not None:
+            MESSAGE_SUFFIX = os.getenv("MESSAGE_SUFFIX_SAT_EVEN")
+        elif even == 1 and os.getenv("MESSAGE_SUFFIX_SAT_ODD") is not None:
+            MESSAGE_SUFFIX = os.getenv("MESSAGE_SUFFIX_SAT_ODD")
     elif today == 6:
         MESSAGE_SUFFIX = os.getenv("MESSAGE_SUFFIX_SUN")
+        if even == 0 and os.getenv("MESSAGE_SUFFIX_SUN_EVEN") is not None:
+            MESSAGE_SUFFIX = os.getenv("MESSAGE_SUFFIX_SUN_EVEN")
+        elif even == 1 and os.getenv("MESSAGE_SUFFIX_SUN_ODD") is not None:
+            MESSAGE_SUFFIX = os.getenv("MESSAGE_SUFFIX_SUN_ODD")
     else:
         MESSAGE_SUFFIX = ""
 
