@@ -49,7 +49,6 @@ def generate_image_openai(
     prompt,
     model="dall-e-2",
     size="256x256",
-    quality="standard",
 ):
     """Generate images with DALL-E based on a prompt.
 
@@ -61,8 +60,11 @@ def generate_image_openai(
         The model to use for generating the image. Defaults to "dall-e-2".
     size : str
         The size of the generated image. Defaults to "256x256".
-    quality : str
-        The quality of the generated image. Defaults to "standard".
+
+    Returns
+    -------
+    str
+        The URL of the generated image. If an error occurs, a default image URL is returned.
     """
     client = OpenAI()
 
@@ -73,7 +75,6 @@ def generate_image_openai(
             model=model,
             prompt=prompt,
             size=size,
-            quality=quality,
             n=1,
         )
         image_url = response.data[0].url
