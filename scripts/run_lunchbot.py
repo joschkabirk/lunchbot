@@ -234,6 +234,26 @@ def main():
         else:
             raise ValueError(f"Image upload failed for {dish['image_url']}")
 
+    # if there are price/info/canteen elements that are None, set them to "N/A"
+    for dish in list_of_dishes:
+        if dish["price"] is None:
+            dish["price"] = "N/A"
+        if dish["info"] is None:
+            dish["info"] = "N/A"
+        if dish["canteen"] is None:
+            dish["canteen"] = "N/A"
+
+    # printout the information which helps with debugging in case something goes wrong
+    for dish in list_of_dishes:
+        logger.info(f"Dish: {dish['name']}")
+        logger.info(f"\tImage URL: {dish['image_url']}")
+        logger.info(f"\tGeneration info tag: {dish['generation_info_tag']}")
+        logger.info(f"\tHash: {dish['hash']}")
+        logger.info(f"\tPrice: {dish['price']}")
+        logger.info(f"\tInfo: {dish['info']}")
+        logger.info(f"\tCanteen: {dish['canteen']}")
+
+
     # -------------------------------------------------------------------------
     # Put the message together and send to Mattermost
     # ---
