@@ -13,7 +13,7 @@ the bot. To run it periodically, use e.g. `cron`.
 Overall, the whole setup is kinda DESY-specific due to the fact that the
 DESY Sync&Share is used to store the menu preview images.
 
-<img src=assets/lunchbot.excalidraw.svg>
+<img width=600px src=assets/lunchbot.excalidraw.svg>
 
 ## Usage
 
