@@ -5,7 +5,7 @@ a dedicated Mattermost channel.
 
 **Example**:
 
-<img src="https://syncandshare.desy.de/index.php/s/QRHbNjEPB39FF55/download?path=lunchbot_assets&files=lunchbot_message_example.png" width=600px style="border-radius:10px">
+<img src="https://syncandshare.desy.de/public.php/dav/files/EbaHq5W8zof5SPH/?accept=zip">
 
 At the moment, this implementation is designed to represent only one execution of
 the bot. To run it periodically, use e.g. `cron`.
@@ -13,7 +13,7 @@ the bot. To run it periodically, use e.g. `cron`.
 Overall, the whole setup is kinda DESY-specific due to the fact that the
 DESY Sync&Share is used to store the menu preview images.
 
-<img src=assets/lunchbot.excalidraw.svg width=500px style="border-radius:10px">
+<img src=assets/lunchbot.excalidraw.svg>
 
 ## Usage
 
