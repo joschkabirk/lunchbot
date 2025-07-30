@@ -1,7 +1,5 @@
 import logging
 import os
-from subprocess import run  # nosec
-from urllib import request  # nosec
 import argparse
 
 from dotenv import load_dotenv
