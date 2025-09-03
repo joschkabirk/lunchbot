@@ -8,6 +8,7 @@ from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+
 from lunchbot.utils import generate_hash
 
 logger = logging.getLogger(__name__)
@@ -102,43 +103,38 @@ def fetch_todays_lunch_menu(url: str):
         regex = re.compile("entry entry-item *")
         menu_entries_table = todays_card.find_all("table", {"class": regex})
 
-        logger.info(80 * "-")
+        entries_list = menu_entries_table[0].find_all("tbody")[0]
+        n_entries = len(entries_list)
+
+        logger.info(f"Found {n_entries} entries in the menu for date {today_date}")
 
         # ----------- Find different dishes -----------
-
-        for menu_entry in menu_entries_table:
-            entry_title = menu_entry.find("div", class_="accent1-text")
-
-            tbody = menu_entry.find_all("tbody")
-
-            logger.info(f"Entries from menu_entry: '{entry_title.text}'")
-            # print all the different elements (for debugging)
-            for i_tr, tr in enumerate(tbody):
-                for i_td, td in enumerate(tr):
-                    for i_p, p in enumerate(td):
-                        logger.info(f"{i_tr}, {i_td}, {i_p} {p.text}")
-
-            # skip soups
-            if "main" not in entry_title.text.lower():
-                logger.info(">>> Skipping non-main dish.")
-                continue
-
-            # extract the dish name, info and price (check the logged output
-            # in case this is messed up due to changes to the website...)
-            dish_name = list(list(list(tbody)[0])[0])[0].text
-            dish_info = list(list(list(tbody)[0])[1])[0].text
-            dish_price = list(list(list(tbody)[0])[1])[2].text.replace(" ", "")
-
-            if dish_name == "":
-                dish_name = "Surprise dish"
-
-            logger.info(10 * "-")
-            logger.info(f"--> | {dish_price} | {dish_info} | {dish_name} |")
+        # entries are alternating: dish name, dish info + price etc
+        for i in range(0, n_entries, 2):
             logger.info(80 * "-")
+            logger.info(f"--- Entry {i} ---")
+            dish_name = entries_list.find_all("tr")[i].text
+            logger.info(f"Dish name: '{dish_name}'")
+            dish_info = entries_list.find_all("tr")[i + 1].text
+            logger.info(f"Dish info: '{dish_info}'")
+
+            dish_veg_label = None
+
+            if "vegan" in dish_info.lower():
+                dish_veg_label = "vegan"
+            elif "vegetarisch" in dish_info.lower():
+                dish_veg_label = "vegetarian"
+            else:
+                dish_veg_label = "meat"
+            logger.info(f"Veg label: '{dish_veg_label}'")
+
+            dish_price = dish_info.split("€")[-1].strip() + " €"
+            logger.info(f"Dish price: '{dish_price}'")
+
             dishes_list.append(
                 {
                     "name": dish_name,
-                    "info": dish_info,
+                    "info": dish_veg_label,
                     "price": dish_price,
                     "canteen": "DESY Canteen",
                     "hash": generate_hash(dish_name),
