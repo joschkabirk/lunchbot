@@ -103,7 +103,7 @@ def fetch_todays_lunch_menu(url: str):
         regex = re.compile("entry entry-item *")
         menu_entries_table = todays_card.find_all("table", {"class": regex})
 
-        entries_list = menu_entries_table[0].find_all("tbody")[0]
+        entries_list = menu_entries_table[1].find_all("tbody")[0]
         n_entries = len(entries_list)
 
         logger.info(f"Found {n_entries} entries in the menu for date {today_date}")
