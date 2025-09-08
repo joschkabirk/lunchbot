@@ -103,49 +103,65 @@ def fetch_todays_lunch_menu(url: str):
         regex = re.compile("entry entry-item *")
         menu_entries_table = todays_card.find_all("table", {"class": regex})
 
-        entries_list = menu_entries_table[1].find_all("tbody")[0]
-        n_entries = len(entries_list)
+        # check which of the charts has the actual means (and not the soups)
+        for i, entry_list in enumerate(menu_entries_table):
+            print(entry_list.text)
+            if "soup" in entry_list.text.lower():
+                print("Skipping soup entries")
+                continue
+            entries_list = entry_list
 
-        logger.info(f"Found {n_entries} entries in the menu for date {today_date}")
+            # debugging (if website structure is changed once again)
+            # for j, entry in enumerate(entries_list.find_all("tr")):
+            #     logger.info(80 * "-")
+            #     logger.info(f"Entry: {j}")
+            #     logger.info(entry.text)
+            #     logger.info(80 * "-")
 
-        # ----------- Find different dishes -----------
-        # entries are alternating: dish name, dish info + price etc
-        for i in range(0, n_entries, 2):
-            logger.info(80 * "-")
-            logger.info(f"--- Entry {i} ---")
-            dish_name = entries_list.find_all("tr")[i].text
-            logger.info(f"Dish name: '{dish_name}'")
-            dish_info = entries_list.find_all("tr")[i + 1].text
-            logger.info(f"Dish info: '{dish_info}'")
+            n_entries = len(entries_list.find_all("tr")) - 1
+            logger.info(f"Found {n_entries} entries in the menu for date {today_date}")
 
-            dish_veg_label = None
+            # ----------- Find different dishes -----------
+            # entries are alternating: dish name, dish info + price etc
+            for i in range(1, n_entries, 2):
+                logger.info(80 * "-")
+                logger.info(f"--- Entry {i} ---")
+                dish_name = entries_list.find_all("tr")[i].text
+                logger.info(f"Dish name: '{dish_name}'")
+                dish_info = entries_list.find_all("tr")[i + 1].text
+                logger.info(f"Dish info: '{dish_info}'")
 
-            if "vegan" in dish_info.lower():
-                dish_veg_label = "vegan"
-            elif "vegetarisch" in dish_info.lower():
-                dish_veg_label = "vegetarian"
-            else:
-                dish_veg_label = "meat"
-            logger.info(f"Veg label: '{dish_veg_label}'")
+                dish_veg_label = None
 
-            dish_price = dish_info.split("€")[-1].strip() + " €"
-            logger.info(f"Dish price: '{dish_price}'")
+                if "vegan" in dish_info.lower():
+                    dish_veg_label = "vegan"
+                elif "vegetarisch" in dish_info.lower():
+                    dish_veg_label = "vegetarian"
+                else:
+                    dish_veg_label = "meat"
+                logger.info(f"Veg label: '{dish_veg_label}'")
 
-            dishes_list.append(
-                {
-                    "name": dish_name,
-                    "info": dish_veg_label,
-                    "price": dish_price,
-                    "canteen": "DESY Canteen",
-                    "hash": generate_hash(dish_name),
-                }
-            )
+                dish_price = dish_info.split("€")[-1].strip() + " €"
+                logger.info(f"Dish price: '{dish_price}'")
+
+                dishes_list.append(
+                    {
+                        "name": dish_name,
+                        "info": dish_veg_label,
+                        "price": dish_price,
+                        "canteen": "DESY Canteen",
+                        "hash": generate_hash(dish_name),
+                    }
+                )
+
+    # print()
+    # for dish in dishes_list:
+    #     print(dish)
+    # print()
 
     return dishes_list
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
     url = "https://desy.myalsterfood.de/"
     todays_menu = fetch_todays_lunch_menu(url)
-    print(todays_menu)
