@@ -23,6 +23,7 @@ def main():
 
     load_dotenv()  # take environment variables from .env
 
+    HOSTNAME = os.getenv("HOSTNAME", "unknown_host")
     ALSTERFOOD_WEBSITE_URL = os.getenv("ALSTERFOOD_WEBSITE_URL")
     CFEL_WEBSITE_URL = os.getenv("CFEL_WEBSITE_URL")
     MATTERMOST_WEBHOOK_URL = os.getenv("MATTERMOST_WEBHOOK_URL")
@@ -90,6 +91,8 @@ def main():
         MESSAGE_SUFFIX = ""
 
     logger = logging.getLogger("lunchbot")
+
+    logger.info(f"Running on host: {HOSTNAME}")
 
     # some initial logging
     logger.info(50 * "-")
