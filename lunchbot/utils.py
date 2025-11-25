@@ -1,9 +1,13 @@
 """Utils for lunchbot."""
 
-import logging
-
-from openai import OpenAI
 import hashlib
+import logging
+import os
+
+from dotenv import load_dotenv
+from openai import OpenAI
+
+load_dotenv()  # Loads variables from .env file
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +46,7 @@ def translate_german_food_description_to_english(
         The answer or a tuple of the prompt and the answer (if return_prompt_answer=True).
     """
 
-    client = OpenAI()
+    client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
     if system_content is None:
         system_content = (
