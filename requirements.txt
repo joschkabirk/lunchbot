@@ -1,14 +1,11 @@
 apscheduler
-black
 bs4
 cachelib
 datetime
-flask
-flask_session
 openai
 pillow
 pre-commit
+pytest
 python-dotenv
 requests
 ruff
-selenium
