@@ -1,4 +1,4 @@
-FROM selenium/standalone-chrome
+FROM python:3.11.14-trixie
 
 USER root
 
@@ -12,8 +12,3 @@ RUN apt-get update && apt-get install -y python3-venv
 RUN python3 -m venv venv_container && \
     . venv_container/bin/activate && \
     pip install -r requirements.txt
-
-COPY . .
-RUN chmod +x ./scripts/run_website.sh
-
-CMD ["./scripts/run_website.sh"]
