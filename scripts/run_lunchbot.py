@@ -188,7 +188,7 @@ def main():
             # download the image from the openAI url and save in images/image_hash.png
             # (openAI urls are only valid for one hour, then they expire)
             # command = f"curl --output images/asdf{i}.png {image_url}"
-            request.urlretrieve(generated_image_url, f"images/{meal_hash}.png", timeout=60) # nosec
+            request.urlretrieve(generated_image_url, f"images/{meal_hash}.png") # nosec
             dish["generation_info_tag"] = "Generated with OpenAI API"
         elif API_TO_USE == "huggingface":
             try:
@@ -212,7 +212,7 @@ def main():
                 # download the image from the openAI url and save in images/image_hash.png
                 # (openAI urls are only valid for one hour, then they expire)
                 # command = f"curl --output images/asdf{i}.png {image_url}"
-                request.urlretrieve(generated_image_url, f"images/{meal_hash}.png", timeout=60) # nosec
+                request.urlretrieve(generated_image_url, f"images/{meal_hash}.png") # nosec
                 dish["generation_info_tag"] = "Generated with OpenAI API"
             else:
                 # this error should be raised already, but just in case
