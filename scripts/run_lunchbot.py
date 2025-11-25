@@ -1,17 +1,18 @@
 import datetime
-import requests
 import logging
 import os
 from subprocess import run  # nosec
 from urllib import request  # nosec
 
+import requests
 from dotenv import load_dotenv
 
 import lunchbot.alsterfood_scraping as alsterfood_scraping
 import lunchbot.cfel_scraping as cfel_scraping
-from lunchbot.image_generation import generate_image_openai, generate_image_huggingface
+from lunchbot.image_generation import generate_image_huggingface, generate_image_openai
 from lunchbot.mattermost_posting import send_message_via_webhook
 from lunchbot.utils import color_text
+
 
 def main():
     logging.basicConfig(
@@ -33,6 +34,9 @@ def main():
     HUGGINGFACE_API_URL = os.getenv("HUGGINGFACE_API_URL")
     HUGGINGFACE_API_TOKEN = os.getenv("HUGGINGFACE_API_TOKEN")
     API_TO_USE = os.getenv("API_TO_USE").lower()  # huggingface or openai
+    MATTERMOST_USERNAME = os.getenv("MATTERMOST_USERNAME")
+    SYSTEM_CONTENT = os.getenv("SYSTEM_CONTENT")
+    DESCRIPTION_SUFFIX = os.getenv("DESCRIPTION_SUFFIX")
 
     if API_TO_USE != "huggingface" and API_TO_USE != "openai":
         raise ValueError("API_TO_USE must be either 'huggingface' or 'openai'")
@@ -85,10 +89,6 @@ def main():
     else:
         MESSAGE_SUFFIX = ""
 
-    MATTERMOST_USERNAME = os.getenv("MATTERMOST_USERNAME")
-    SYSTEM_CONTENT = os.getenv("SYSTEM_CONTENT")
-    DESCRIPTION_SUFFIX = os.getenv("DESCRIPTION_SUFFIX")
-
     logger = logging.getLogger("lunchbot")
 
     # some initial logging
@@ -103,7 +103,7 @@ def main():
         raise ValueError("ALSTERFOOD_WEBSITE_URL is not set")
     if MATTERMOST_WEBHOOK_URL is None:
         raise ValueError("MATTERMOST_WEBHOOK_URL is not set")
-    if USE_OPENAI_IMAGE_URL == "true":
+    if USE_OPENAI_IMAGE_URL.lower() == "true":
         logger.warning("Using OpenAI image URL (will expire after 1 hour)")
         logger.info("IMAGE_CLOUD_UPLOAD_URL will be ignored")
         logger.info("IMAGE_CLOUD_UPLOAD_TOKEN will be ignored")
@@ -147,7 +147,7 @@ def main():
 
     logger.info("The following dishes were found:")
     for i, dish_name in enumerate(list_of_dishes):
-        logger.info(f"  {i+1})  {dish_name}")
+        logger.info(f"  {i + 1})  {dish_name}")
 
     # -------------------------------------------------------------------------
     # Generate an image for each meal
@@ -166,7 +166,7 @@ def main():
 
         # check if image already exists - if it does, skip image generation
         # and just use the existing image
-        if requests.get(dish["image_url"]).status_code == 200:
+        if requests.get(dish["image_url"], timeout=60).status_code == 200:
             logger.info(
                 f"Image with hash {color_text(meal_hash, 'yellow')} for "
                 f"'{color_text(dish_name, 'yellow')}' already exists. "
@@ -185,7 +185,7 @@ def main():
             # download the image from the openAI url and save in images/image_hash.png
             # (openAI urls are only valid for one hour, then they expire)
             # command = f"curl --output images/asdf{i}.png {image_url}"
-            request.urlretrieve(generated_image_url, f"images/{meal_hash}.png")
+            request.urlretrieve(generated_image_url, f"images/{meal_hash}.png", timeout=60) # nosec
             dish["generation_info_tag"] = "Generated with OpenAI API"
         elif API_TO_USE == "huggingface":
             try:
@@ -209,7 +209,7 @@ def main():
                 # download the image from the openAI url and save in images/image_hash.png
                 # (openAI urls are only valid for one hour, then they expire)
                 # command = f"curl --output images/asdf{i}.png {image_url}"
-                request.urlretrieve(generated_image_url, f"images/{meal_hash}.png")  # nosec
+                request.urlretrieve(generated_image_url, f"images/{meal_hash}.png", timeout=60) # nosec
                 dish["generation_info_tag"] = "Generated with OpenAI API"
             else:
                 # this error should be raised already, but just in case
@@ -229,7 +229,7 @@ def main():
         run(" ".join(upload_command), shell=True)  # nosec
 
         # check if the image was uploaded successfully
-        if requests.get(dish["image_url"]).status_code == 200:
+        if requests.get(dish["image_url"], timeout=60).status_code == 200:
             logger.info(f"Image uploaded successfully to {dish['image_url']}")
         else:
             raise ValueError(f"Image upload failed for {dish['image_url']}")
@@ -252,7 +252,6 @@ def main():
         logger.info(f"\tPrice: {dish['price']}")
         logger.info(f"\tInfo: {dish['info']}")
         logger.info(f"\tCanteen: {dish['canteen']}")
-
 
     # -------------------------------------------------------------------------
     # Put the message together and send to Mattermost
@@ -294,7 +293,7 @@ def main():
     )
 
     logger.info("Posting the following message on Mattermost:")
-    logger.info(color_text(message, 'green'))
+    logger.info(color_text(message, "green"))
 
     n_attempts = 10
 
@@ -309,7 +308,7 @@ def main():
         except Exception as e:
             logger.error(f"An error occurred while posting message: {e}")
             if n < n_attempts - 1:
-                logger.info(f"Retrying... (attempt {n+2}/{n_attempts})")
+                logger.info(f"Retrying... (attempt {n + 2}/{n_attempts})")
             else:
                 raise e
     logger.info("Message posted successfully!")
