@@ -4,11 +4,15 @@ USER root
 
 RUN apt update && apt install -y python3 python3-pip zsh git curl wget vim
 
-WORKDIR /app
+WORKDIR /lunchbot
 COPY requirements.txt .
 
-# create venv, activate it, and install requirements
-RUN apt-get update && apt-get install -y python3-venv
-RUN python3 -m venv venv_container && \
-    . venv_container/bin/activate && \
+# Create venv, activate it, and install requirements
+ENV VIRTUAL_ENV=/lunchbot_venv
+RUN pip install --upgrade pip
+RUN python3 -m venv $VIRTUAL_ENV && \
+    . $VIRTUAL_ENV/bin/activate && \
     pip install -r requirements.txt
+
+# Add the virtual environment's bin directory to the PATH
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
