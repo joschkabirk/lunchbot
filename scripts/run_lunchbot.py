@@ -2,7 +2,6 @@ import datetime
 import logging
 import os
 from subprocess import run  # nosec
-from urllib import request  # nosec
 
 import requests
 from dotenv import load_dotenv
@@ -165,7 +164,7 @@ def main():
         logger.debug(f"Meal: {dish_name}")
         logger.debug(f"Hash: {meal_hash}")
 
-        dish["image_url"] = f"{IMAGE_CLOUD_DOWNLOAD_URL}{meal_hash}.png"
+        dish["image_url"] = f"{IMAGE_CLOUD_DOWNLOAD_URL}{meal_hash}.jpg"
 
         # check if image already exists - if it does, skip image generation
         # and just use the existing image
@@ -180,15 +179,10 @@ def main():
         logger.info(f"Generating image with hash {meal_hash} for '{dish_name}'")
 
         if API_TO_USE == "openai":
-            # generate the image using the OpenAI API
-            generated_image_url = generate_image_openai(prompt=dish_name)
-            # log the URL of the generated image
-            logger.info(f"Generated Image URL: {generated_image_url}")
-
-            # download the image from the openAI url and save in images/image_hash.png
-            # (openAI urls are only valid for one hour, then they expire)
-            # command = f"curl --output images/asdf{i}.png {image_url}"
-            request.urlretrieve(generated_image_url, f"images/{meal_hash}.png") # nosec
+            generate_image_openai(
+                prompt=dish_name,
+                save_path=f"images/{meal_hash}.jpg",
+            )
             dish["generation_info_tag"] = "Generated with OpenAI API"
         elif API_TO_USE == "huggingface":
             try:
@@ -197,7 +191,7 @@ def main():
                     prompt=dish_name,
                     api_url=HUGGINGFACE_API_URL,
                     api_token=HUGGINGFACE_API_TOKEN,
-                    save_path=f"images/{meal_hash}.png",
+                    save_path=f"images/{meal_hash}.jpg",
                 )
                 dish["generation_info_tag"] = "Generated with Huggingface API"
             except Exception as e:
@@ -205,14 +199,10 @@ def main():
                 # (for some reason Huggingface API sometimes fails to generate images)
                 logger.error(f"An error occurred while generating image: {e}")
                 logger.info("Trying to generate image with OpenAI API")
-                generated_image_url = generate_image_openai(prompt=dish_name)
-                # log the URL of the generated image
-                logger.info(f"Generated Image URL: {generated_image_url}")
-
-                # download the image from the openAI url and save in images/image_hash.png
-                # (openAI urls are only valid for one hour, then they expire)
-                # command = f"curl --output images/asdf{i}.png {image_url}"
-                request.urlretrieve(generated_image_url, f"images/{meal_hash}.png") # nosec
+                generate_image_openai(
+                    prompt=dish_name,
+                    save_path=f"images/{meal_hash}.jpg",
+                )
                 dish["generation_info_tag"] = "Generated with OpenAI API"
             else:
                 # this error should be raised already, but just in case
@@ -226,8 +216,8 @@ def main():
             "-u",
             f"'{IMAGE_CLOUD_UPLOAD_TOKEN}'",
             "-T",
-            f"images/{meal_hash}.png",
-            f"{IMAGE_CLOUD_UPLOAD_URL}{meal_hash}.png",
+            f"images/{meal_hash}.jpg",
+            f"{IMAGE_CLOUD_UPLOAD_URL}{meal_hash}.jpg",
         ]
         run(" ".join(upload_command), shell=True)  # nosec
 

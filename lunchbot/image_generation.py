@@ -1,5 +1,6 @@
 """Image generation stuff."""
 
+import base64
 import io
 import logging
 
@@ -9,27 +10,40 @@ from PIL import Image
 
 logger = logging.getLogger(__name__)
 
+FALLBACK_IMAGE_URL = "https://syncandshare.desy.de/index.php/s/QRHbNjEPB39FF55/download?path=lunchbot_assets&files=technical_difficulties.JPG"
+
 
 def generate_image_openai(
     prompt,
-    model="dall-e-2",
-    size="256x256",
+    save_path,
+    model="gpt-image-1-mini",
+    size="1024x1024",
+    quality="medium",
+    resize_to=512,
 ):
-    """Generate images with DALL-E based on a prompt.
+    """Generate an image based on a prompt and save it to disk.
+
+    The gpt-image-1 model returns base64-encoded image data (not a URL like
+    DALL-E did), so the image is decoded, optionally downscaled, and written
+    to ``save_path``.
 
     Parameters
     ----------
     prompt : str
         The prompt to generate an image for.
+    save_path : str
+        Path the generated image will be written to.
     model : str
-        The model to use for generating the image. Defaults to "dall-e-2".
+        The model to use for generating the image. Defaults to "gpt-image-1-mini".
     size : str
-        The size of the generated image. Defaults to "256x256".
-
-    Returns
-    -------
-    str
-        The URL of the generated image. If an error occurs, a default image URL is returned.
+        The size requested from the API. Defaults to "1024x1024".
+    quality : str
+        Rendering quality for gpt-image-1 models. One of "low", "medium",
+        "high", or "auto". Defaults to "medium".
+    resize_to : int or None
+        If set, downscale the saved image to this many pixels on the longer
+        edge (preserving aspect ratio). Set to None to keep the original size.
+        Defaults to 512.
     """
     client = OpenAI()
 
@@ -40,14 +54,21 @@ def generate_image_openai(
             model=model,
             prompt=prompt,
             size=size,
+            quality=quality,
             n=1,
         )
-        image_url = response.data[0].url
+        image_bytes = base64.b64decode(response.data[0].b64_json)
+        image = Image.open(io.BytesIO(image_bytes))
+        if resize_to is not None:
+            image.thumbnail((resize_to, resize_to), Image.LANCZOS)
+        image.convert("RGB").save(save_path, format="JPEG", quality=85, optimize=True)
+        logger.info(f"Image generated successfully. Saved to {save_path}.")
     except Exception as e:
-        print(f"Exception raised during image generation: {e}")
-        image_url = "https://syncandshare.desy.de/index.php/s/QRHbNjEPB39FF55/download?path=lunchbot_assets&files=technical_difficulties.JPG"
-
-    return image_url
+        logger.error(f"Exception raised during image generation: {e}")
+        logger.info(f"Falling back to default image at {FALLBACK_IMAGE_URL}")
+        fallback = requests.get(FALLBACK_IMAGE_URL, timeout=60)
+        with open(save_path, "wb") as f:
+            f.write(fallback.content)
 
 
 def generate_image_huggingface(
