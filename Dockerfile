@@ -1,18 +1,11 @@
-FROM python:3.11.14-trixie
+FROM python:3.11-slim
 
-USER root
-
-RUN apt update && apt install -y python3 python3-pip zsh git curl wget vim
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /usr/local/bin/
 
 WORKDIR /lunchbot
-COPY requirements.txt .
+COPY pyproject.toml uv.lock ./
+RUN uv sync --frozen --no-dev
 
-# Create venv, activate it, and install requirements
-ENV VIRTUAL_ENV=/lunchbot_venv
-RUN pip install --upgrade pip
-RUN python3 -m venv $VIRTUAL_ENV && \
-    . $VIRTUAL_ENV/bin/activate && \
-    pip install -r requirements.txt
+COPY . .
 
-# Add the virtual environment's bin directory to the PATH
-ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+CMD ["/bin/bash"]

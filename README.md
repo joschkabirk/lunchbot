@@ -19,8 +19,11 @@ DESY Sync&Share is used to store the menu preview images.
 
 ### Requirements
 
-The easiest way to run this bot is to use the dedicated Docker image.
-The image is available on [Docker Hub at `jobirk/lunchbot`](https://hub.docker.com/r/jobirk/lunchbot).
+Install [uv](https://docs.astral.sh/uv/getting-started/installation/):
+
+```shell
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
 
 Furthermore, you have to set the following environment variables in a `.env` file:
 
@@ -61,11 +64,40 @@ MESSAGE_SUFFIX_SUN_ODD="<your message suffix for sundays in odd weeks>"
 
 ### Run the bot
 
-Inside the container (and repo), just run:
-
 ```shell
-python scripts/run_lunchbot.py
+uv run scripts/run_lunchbot.py
 ```
 
-This will run the bot once. To run it periodically, just use e.g. `cron` to run the script
-every day at a specific time.
+This will run the bot once. To run it periodically, use e.g. `cron` to run the
+command every day at a specific time.
+
+### Run with Docker (alternative)
+
+The Docker image provides a ready-made environment with all dependencies
+installed but does not run the bot automatically.
+
+```shell
+docker build -t lunchbot .
+docker run -it --env-file .env lunchbot
+uv run scripts/run_lunchbot.py
+```
+
+Inside the container, run the bot with:
+
+```shell
+uv run scripts/run_lunchbot.py
+```
+
+### Development
+
+Install dev dependencies:
+
+```shell
+uv sync --dev
+```
+
+Run pre-commit hooks:
+
+```shell
+uv run pre-commit install
+```
