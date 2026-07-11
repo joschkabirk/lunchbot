@@ -20,6 +20,7 @@ def generate_image_openai(
     size="1024x1024",
     quality="medium",
     resize_to=512,
+    prompt_prefix=None,
 ):
     """Generate an image based on a prompt and save it to disk.
 
@@ -46,6 +47,9 @@ def generate_image_openai(
         Defaults to 512.
     """
     client = OpenAI()
+
+    if prompt_prefix:
+        prompt = prompt_prefix + prompt
 
     logger.info(f"Generating image (with OpenAI-API) with prompt: {prompt}")
 
@@ -76,6 +80,7 @@ def generate_image_huggingface(
     api_token,
     api_url,
     save_path="image.jpg",
+    prompt_prefix=None,
 ):
     """Generate an image using the huggingface api.
 
@@ -89,18 +94,22 @@ def generate_image_huggingface(
         The URL of the API to use for the request.
     save_path : str
         The path to save the generated image to. Defaults to "image.jpg".
+    prompt_prefix : str or None
+        A style prefix prepended to the prompt. If None, a generic default is used.
     """
     headers = {"Authorization": f"Bearer {api_token}"}
 
-    logger.info(f"Generating image (with huggingface-api) with prompt: {prompt}")
+    if prompt_prefix is None:
+        prompt_prefix = "Generate a realistic looking image based on the following prompt: "
+
+    full_prompt = prompt_prefix + prompt
+    logger.info(f"Generating image (with huggingface-api) with prompt: {full_prompt}")
 
     def query(payload):
         response = requests.post(api_url, headers=headers, json=payload, timeout=60)
         return response.content
 
-    add_prompt = "Generate a realistic looking image based on the following prompt: "
-
-    image_bytes = query({"inputs": add_prompt + prompt})
+    image_bytes = query({"inputs": full_prompt})
     image = Image.open(io.BytesIO(image_bytes))
     logger.info(f"Image generated successfully. Saving to {save_path}.")
     image.save(save_path)

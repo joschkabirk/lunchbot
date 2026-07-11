@@ -1,0 +1,36 @@
+# Image generation
+API_TO_USE="huggingface" # options are "openai" and "huggingface"
+HUGGINGFACE_API_URL="https://router.huggingface.co/hf-inference/models/black-forest-labs/FLUX.1-schnell"
+HUGGINGFACE_API_TOKEN="<your Hugging Face API token>"
+OPENAI_API_KEY="<your OpenAI API key>"
+IMAGE_PROMPT_PREFIX="Professional food photography, overhead shot on a white ceramic plate, soft natural lighting, shallow depth of field, clean minimal background: "
+USE_OPENAI_IMAGE_URL="false"
+
+# Menu sources
+ALSTERFOOD_WEBSITE_URL="https://desy.myalsterfood.de/"
+CFEL_WEBSITE_URL="https://www.imensa.de/hamburg/cafe-cfel/index.html"
+
+# Image cloud storage (not needed if USE_OPENAI_IMAGE_URL="true")
+IMAGE_CLOUD_UPLOAD_URL="<your WebDAV upload base URL>"
+IMAGE_CLOUD_UPLOAD_TOKEN="<user:password>"
+IMAGE_CLOUD_DOWNLOAD_URL="<your public download base URL>"
+
+# Mattermost
+MATTERMOST_WEBHOOK_URL="<your Mattermost webhook URL>"
+MATTERMOST_WEBHOOK_URL_ALERT="<your Mattermost webhook URL for alerts>"
+MATTERMOST_USERNAME="Lunchbot"
+ALERT_PREFIX="ALERT @username "
+
+# Message content
+MESSAGE_PREFIX=""
+MESSAGE_SUFFIX_MON=""
+MESSAGE_SUFFIX_TUE=""
+MESSAGE_SUFFIX_WED=""
+MESSAGE_SUFFIX_THU=""
+MESSAGE_SUFFIX_FRI=""
+MESSAGE_SUFFIX_SAT=""
+MESSAGE_SUFFIX_SUN=""
+# MESSAGE_SUFFIX_MON_EVEN=""
+# MESSAGE_SUFFIX_MON_ODD=""
+SYSTEM_CONTENT="You are a five star chef. You know how to describe food."
+DESCRIPTION_SUFFIX=""

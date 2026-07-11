@@ -37,6 +37,7 @@ def main():
     MATTERMOST_USERNAME = os.getenv("MATTERMOST_USERNAME")
     SYSTEM_CONTENT = os.getenv("SYSTEM_CONTENT")
     DESCRIPTION_SUFFIX = os.getenv("DESCRIPTION_SUFFIX")
+    IMAGE_PROMPT_PREFIX = os.getenv("IMAGE_PROMPT_PREFIX")
 
     if API_TO_USE != "huggingface" and API_TO_USE != "openai":
         raise ValueError("API_TO_USE must be either 'huggingface' or 'openai'")
@@ -180,6 +181,7 @@ def main():
             generate_image_openai(
                 prompt=dish_name,
                 save_path=f"images/{meal_hash}.jpg",
+                prompt_prefix=IMAGE_PROMPT_PREFIX,
             )
             dish["generation_info_tag"] = "Generated with OpenAI API"
         elif API_TO_USE == "huggingface":
@@ -190,6 +192,7 @@ def main():
                     api_url=HUGGINGFACE_API_URL,
                     api_token=HUGGINGFACE_API_TOKEN,
                     save_path=f"images/{meal_hash}.jpg",
+                    prompt_prefix=IMAGE_PROMPT_PREFIX,
                 )
                 dish["generation_info_tag"] = "Generated with Huggingface API"
             except Exception as e:
@@ -200,6 +203,7 @@ def main():
                 generate_image_openai(
                     prompt=dish_name,
                     save_path=f"images/{meal_hash}.jpg",
+                    prompt_prefix=IMAGE_PROMPT_PREFIX,
                 )
                 dish["generation_info_tag"] = "Generated with OpenAI API"
         else:
