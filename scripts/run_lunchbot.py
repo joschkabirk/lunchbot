@@ -124,10 +124,10 @@ def main():
     if MATTERMOST_USERNAME is None:
         MATTERMOST_USERNAME = "Lunchbot"
     if SYSTEM_CONTENT is None:
-        SYSTEM_CONTENT = "You are a 5-star restaurant critic. You are writing a review of the following dish:"
-        logger.warning(
-            f"SYSTEM_CONTENT is not set, using default value: {SYSTEM_CONTENT}"
+        SYSTEM_CONTENT = (
+            "You are a 5-star restaurant critic. You are writing a review of the following dish:"
         )
+        logger.warning(f"SYSTEM_CONTENT is not set, using default value: {SYSTEM_CONTENT}")
     if DESCRIPTION_SUFFIX is None:
         DESCRIPTION_SUFFIX = ""
 
@@ -137,9 +137,7 @@ def main():
     # -------------------------------------------------------------------------
     # Get the list of meals and prices
     # ---
-    logger.info(
-        f"Fetching the lunch menu from Alsterfood... ({ALSTERFOOD_WEBSITE_URL})"
-    )
+    logger.info(f"Fetching the lunch menu from Alsterfood... ({ALSTERFOOD_WEBSITE_URL})")
     list_of_dishes = alsterfood_scraping.fetch_todays_lunch_menu(ALSTERFOOD_WEBSITE_URL)
 
     try:
@@ -204,9 +202,9 @@ def main():
                     save_path=f"images/{meal_hash}.jpg",
                 )
                 dish["generation_info_tag"] = "Generated with OpenAI API"
-            else:
-                # this error should be raised already, but just in case
-                raise ValueError("API_TO_USE must be either 'huggingface' or 'openai'")
+        else:
+            # this error should be raised already, but just in case
+            raise ValueError("API_TO_USE must be either 'huggingface' or 'openai'")
 
         # --- upload the image to the cloud ---
         # the image will be available for unlimited time / until we delete it in the
@@ -276,14 +274,7 @@ def main():
     )
 
     # add prefix and suffix to the message
-    message = (
-        MESSAGE_PREFIX
-        + "\n"
-        + table_dish_columns_merged
-        + "\n\n"
-        + "\n"
-        + MESSAGE_SUFFIX
-    )
+    message = MESSAGE_PREFIX + "\n" + table_dish_columns_merged + "\n\n" + "\n" + MESSAGE_SUFFIX
 
     logger.info("Posting the following message on Mattermost:")
     logger.info(color_text(message, "green"))
