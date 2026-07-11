@@ -35,8 +35,6 @@ def main():
     HUGGINGFACE_API_TOKEN = os.getenv("HUGGINGFACE_API_TOKEN")
     API_TO_USE = os.getenv("API_TO_USE").lower()  # huggingface or openai
     MATTERMOST_USERNAME = os.getenv("MATTERMOST_USERNAME")
-    SYSTEM_CONTENT = os.getenv("SYSTEM_CONTENT")
-    DESCRIPTION_SUFFIX = os.getenv("DESCRIPTION_SUFFIX")
     IMAGE_PROMPT_PREFIX = os.getenv("IMAGE_PROMPT_PREFIX")
 
     if API_TO_USE != "huggingface" and API_TO_USE != "openai":
@@ -124,14 +122,6 @@ def main():
         MESSAGE_SUFFIX = ""
     if MATTERMOST_USERNAME is None:
         MATTERMOST_USERNAME = "Lunchbot"
-    if SYSTEM_CONTENT is None:
-        SYSTEM_CONTENT = (
-            "You are a 5-star restaurant critic. You are writing a review of the following dish:"
-        )
-        logger.warning(f"SYSTEM_CONTENT is not set, using default value: {SYSTEM_CONTENT}")
-    if DESCRIPTION_SUFFIX is None:
-        DESCRIPTION_SUFFIX = ""
-
     # create the images/ directory if it doesn't exist
     os.makedirs("images", exist_ok=True)
 

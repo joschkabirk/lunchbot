@@ -68,12 +68,10 @@ indefinitely. Not needed if `USE_OPENAI_IMAGE_URL="true"`.
 
 #### Message content
 
-| Variable                                    | Required | Description                                             |
-| ------------------------------------------- | -------- | ------------------------------------------------------- |
-| `MESSAGE_PREFIX`                            | no       | Text prepended to the daily message                     |
-| `MESSAGE_SUFFIX_MON` … `MESSAGE_SUFFIX_SUN` | no       | Day-specific suffix appended to the message             |
-| `SYSTEM_CONTENT`                            | no       | System prompt used for AI-generated dish descriptions   |
-| `DESCRIPTION_SUFFIX`                        | no       | Suffix appended after "Description" in the table header |
+| Variable                                      | Required | Description                                 |
+| --------------------------------------------- | -------- | ------------------------------------------- |
+| `MESSAGE_PREFIX`                              | no       | Text prepended to the daily message         |
+| `MESSAGE_SUFFIX_MON` ... `MESSAGE_SUFFIX_SUN` | no       | Day-specific suffix appended to the message |
 
 For different messages in even/odd weeks, use `MESSAGE_SUFFIX_MON_EVEN`,
 `MESSAGE_SUFFIX_MON_ODD`, etc. These take precedence over the base day suffix
